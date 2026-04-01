@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>FieldTrack — Trial Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & VARIABLES ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080f07;
+  --surface: #0e1a0c;
+  --card: #132211;
+  --card-hover: #1a2e17;
+  --border: #1e3a1a;
+  --border-light: #2a4e26;
+  --primary: #47b33e;
+  --primary-dim: #2d7a27;
+  --primary-glow: rgba(71,179,62,0.15);
+  --accent: #d4a21a;
+  --accent-dim: #a07a10;
+  --text: #d4ecd2;
+  --text-muted: #6e9b6a;
+  --text-dim: #3a5838;
+  --danger: #d44a4a;
+  --info: #4a90d4;
+  --white: #eaf7e8;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: 'DM Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --safe-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+html, body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+
+/* ── LAYOUT ────────────────────────────────────────────────── */
+.app { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; }
+
+/* ── HEADER ────────────────────────────────────────────────── */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(8,15,7,0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-brand .icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.header-brand h1 { font-size: 18px; font-weight: 700; color: var(--white); letter-spacing: -0.3px; }
+.header-brand span { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.header-actions { display: flex; gap: 8px; }
+.icon-btn {
+  width: 38px; height: 38px; border-radius: var(--radius-sm);
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.icon-btn:hover, .icon-btn.active { background: var(--card-hover); color: var(--primary); border-color: var(--border-light); }
+
+/* ── MAIN ──────────────────────────────────────────────────── */
+.main { flex: 1; padding: 16px; padding-bottom: calc(80px + var(--safe-bottom)); }
+
+/* ── WEATHER STRIP ─────────────────────────────────────────── */
+.weather-strip {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: var(--radius);
+  background: linear-gradient(135deg, #0f2a1a, #122410);
+  border: 1px solid var(--border);
+  margin-bottom: 16px; overflow-x: auto;
+  white-space: nowrap;
+}
+.weather-strip .wx-icon { font-size: 28px; flex-shrink: 0; }
+.weather-strip .wx-temp { font-size: 22px; font-weight: 700; color: var(--white); flex-shrink: 0; }
+.weather-strip .wx-details { display: flex; gap: 16px; font-size: 12px; color: var(--text-muted); }
+.weather-strip .wx-details span { display: flex; align-items: center; gap: 4px; }
+.weather-strip .wx-loc { font-size: 11px; color: var(--text-dim); margin-left: auto; flex-shrink: 0; }
+.weather-strip.empty { justify-content: center; color: var(--text-dim); font-size: 13px; cursor: pointer; }
+.weather-strip.empty:hover { border-color: var(--border-light); }
+
+/* ── SECTION ───────────────────────────────────────────────── */
+.section-title {
+  font-size: 13px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--text-dim); margin-bottom: 12px;
+}
+
+/* ── TRIAL CARDS ───────────────────────────────────────────── */
+.trials-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.trial-card {
+  padding: 14px 16px; border-radius: var(--radius);
+  background: var(--card); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 14px;
+}
+.trial-card:hover { background: var(--card-hover); border-color: var(--border-light); }
+.trial-card:active { transform: scale(0.98); }
+.trial-card .trial-icon {
+  width: 42px; height: 42px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.trial-card .trial-icon.industry { background: linear-gradient(135deg, var(--accent-dim), #6b4e0a); }
+.trial-card .trial-icon.research { background: linear-gradient(135deg, var(--primary-dim), #1a5214); }
+.trial-card .trial-info { flex: 1; min-width: 0; }
+.trial-card .trial-name { font-size: 15px; font-weight: 600; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trial-card .trial-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.trial-card .trial-meta .badge {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  padding: 2px 7px; border-radius: 4px; margin-left: 6px;
+  background: var(--primary-glow); color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.trial-card .trial-meta .badge.industry { background: rgba(212,162,26,0.12); color: var(--accent); }
+.trial-card .chevron { color: var(--text-dim); font-size: 18px; flex-shrink: 0; }
+
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--text-dim); font-size: 14px;
+}
+.empty-state .em-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+
+/* ── BOTTOM NAV ────────────────────────────────────────────── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(8,15,7,0.92);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-around;
+  padding: 8px 0; padding-bottom: max(8px, var(--safe-bottom));
+}
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 600; color: var(--text-dim);
+  cursor: pointer; padding: 4px 12px; border-radius: var(--radius-sm);
+  transition: color 0.2s; background: none; border: none;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.nav-item .ni { font-size: 22px; }
+.nav-item.active { color: var(--primary); }
+.nav-item:not(.active):hover { color: var(--text-muted); }
+
+/* ── FAB (add trial) ───────────────────────────────────────── */
+.fab {
+  position: fixed; bottom: calc(70px + var(--safe-bottom)); right: 16px; z-index: 90;
+  width: 52px; height: 52px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+  color: var(--white); font-size: 26px; border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 4px 24px rgba(71,179,62,0.3);
+  transition: all 0.2s;
+}
+.fab:hover { transform: scale(1.05); }
+.fab:active { transform: scale(0.95); }
+
+/* ── MODAL ─────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.2s;
+}
+.modal {
+  width: 100%; max-width: 480px; max-height: 92vh;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px 20px 0 0; padding: 20px;
+  overflow-y: auto; animation: slideUp 0.3s ease-out;
+}
+.modal-full {
+  border-radius: 0; max-height: 100vh; height: 100vh;
+}
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes slideUp { from { transform: translateY(60px); opacity: 0; } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.modal-header h2 { font-size: 18px; font-weight: 700; color: var(--white); }
+.modal-close {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+
+/* ── FORM ELEMENTS ─────────────────────────────────────────── */
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 12px 14px; border-radius: var(--radius-sm);
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--font); font-size: 15px;
+  transition: border-color 0.2s; outline: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); }
+.form-input::placeholder, .form-textarea::placeholder { color: var(--text-dim); }
+.form-select { appearance: none; cursor: pointer; }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; border-radius: var(--radius-sm); font-family: var(--font);
+  font-size: 14px; font-weight: 600; cursor: pointer; border: none;
+  transition: all 0.2s; width: 100%;
+}
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dim)); color: var(--white); }
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+.btn-outline:hover { border-color: var(--border-light); color: var(--text); }
+.btn-danger { background: var(--danger); color: var(--white); }
+.btn-sm { padding: 8px 14px; font-size: 13px; width: auto; }
+
+/* ── CAMERA ────────────────────────────────────────────────── */
+.camera-view { position: relative; width: 100%; height: calc(100vh - 220px); background: #000; border-radius: var(--radius); overflow: hidden; }
+.camera-view video { width: 100%; height: 100%; object-fit: cover; }
+.camera-view canvas { display: none; }
+.camera-controls {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 16px; display: flex; align-items: center; justify-content: center; gap: 20px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+}
+.shutter-btn {
+  width: 68px; height: 68px; border-radius: 50%; border: 4px solid var(--white);
+  background: rgba(255,255,255,0.2); cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.shutter-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.5); }
+.shutter-btn .inner { width: 54px; height: 54px; border-radius: 50%; background: var(--white); }
+.camera-meta-bar {
+  padding: 12px 16px;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.camera-meta-bar .tag {
+  font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px;
+  background: var(--primary-glow); color: var(--primary); text-transform: uppercase; letter-spacing: 0.3px;
+}
+.camera-meta-bar .tag.gold { background: rgba(212,162,26,0.12); color: var(--accent); }
+
+/* ── PHOTO PREVIEW ─────────────────────────────────────────── */
+.photo-preview {
+  position: absolute; inset: 0; z-index: 10;
+  background: rgba(0,0,0,0.95);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.photo-preview img { max-width: 100%; max-height: 70vh; border-radius: var(--radius); }
+.photo-preview .preview-actions { display: flex; gap: 12px; margin-top: 16px; }
+
+/* ── GALLERY ───────────────────────────────────────────────── */
+.gallery-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+}
+.gallery-thumb {
+  aspect-ratio: 1; border-radius: var(--radius-sm); overflow: hidden; cursor: pointer;
+  position: relative;
+}
+.gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-thumb .thumb-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 4px 6px; background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  font-size: 9px; color: var(--white); font-weight: 600; text-align: right;
+}
+
+/* ── TRIAL DETAIL ──────────────────────────────────────────── */
+.detail-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.detail-header .back-btn {
+  width: 36px; height: 36px; border-radius: var(--radius-sm);
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.detail-stats { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.stat-card {
+  flex: 1; min-width: 80px; padding: 12px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); text-align: center;
+}
+.stat-card .stat-val { font-size: 22px; font-weight: 700; color: var(--white); }
+.stat-card .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
+
+/* ── SETTINGS ──────────────────────────────────────────────── */
+.setting-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); margin-bottom: 8px;
+}
+.setting-item .si-left { display: flex; align-items: center; gap: 12px; }
+.setting-item .si-icon { font-size: 20px; }
+.setting-item .si-label { font-size: 14px; font-weight: 600; color: var(--white); }
+.setting-item .si-desc { font-size: 11px; color: var(--text-muted); }
+.setting-item .si-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+.si-status.connected { background: var(--primary-glow); color: var(--primary); }
+.si-status.disconnected { background: rgba(212,74,74,0.12); color: var(--danger); }
+
+.api-input-group { display: flex; gap: 8px; margin-top: 8px; }
+.api-input-group input { flex: 1; }
+
+/* ── DRIVE STATUS ──────────────────────────────────────────── */
+.drive-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-radius: var(--radius-sm);
+  background: var(--card); border: 1px solid var(--border);
+  margin-bottom: 12px; font-size: 12px; color: var(--text-muted);
+}
+.drive-bar .drive-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.drive-dot.on { background: var(--primary); box-shadow: 0 0 6px var(--primary); }
+.drive-dot.off { background: var(--danger); }
+
+/* ── ANIMATIONS ────────────────────────────────────────────── */
+.fade-in { animation: fadeIn 0.3s ease-out; }
+.flash { animation: flash 0.3s; }
+@keyframes flash { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ── TOAST ──────────────────────────────────────────────────── */
+.toast-container { position: fixed; top: 70px; left: 16px; right: 16px; z-index: 300; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast {
+  padding: 12px 16px; border-radius: var(--radius-sm);
+  background: var(--card); border: 1px solid var(--border);
+  font-size: 13px; font-weight: 500; color: var(--text);
+  animation: slideDown 0.3s ease-out;
+  pointer-events: auto;
+}
+.toast.success { border-color: var(--primary); background: rgba(71,179,62,0.1); }
+.toast.error { border-color: var(--danger); background: rgba(212,74,74,0.1); }
+@keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } }
+
+/* ── SAVED INDICATOR ───────────────────────────────────────── */
+.saved-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; color: var(--primary);
+  padding: 2px 8px; border-radius: 4px;
+  background: var(--primary-glow);
+}
+.saved-badge.drive { color: var(--info); background: rgba(74,144,212,0.12); }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// FieldTrack — Single-file Field Trial Photo Dashboard
+// ═══════════════════════════════════════════════════════════════
+
+const APP_VERSION = "2.0.0";
+
+// ── STORAGE ──────────────────────────────────────────────────
+const DB = {
+  _store: {},
+  init() {
+    try {
+      const raw = localStorage.getItem("fieldtrack_data");
+      if (raw) this._store = JSON.parse(raw);
+    } catch(e) { this._store = {}; }
+    if (!this._store.trials) this._store.trials = [];
+    if (!this._store.photos) this._store.photos = [];
+    if (!this._store.config) this._store.config = {};
+  },
+  save() { localStorage.setItem("fieldtrack_data", JSON.stringify(this._store)); },
+  get trials() { return this._store.trials; },
+  get photos() { return this._store.photos; },
+  get config() { return this._store.config; },
+  addTrial(t) { this._store.trials.push(t); this.save(); },
+  updateTrial(id, data) {
+    const i = this._store.trials.findIndex(t => t.id === id);
+    if (i >= 0) { Object.assign(this._store.trials[i], data); this.save(); }
+  },
+  deleteTrial(id) {
+    this._store.trials = this._store.trials.filter(t => t.id !== id);
+    this._store.photos = this._store.photos.filter(p => p.trialId !== id);
+    this.save();
+  },
+  addPhoto(p) { this._store.photos.push(p); this.save(); },
+  getTrialPhotos(trialId) { return this._store.photos.filter(p => p.trialId === trialId); },
+  setConfig(key, val) { this._store.config[key] = val; this.save(); },
+  getConfig(key) { return this._store.config[key] || null; },
+};
+DB.init();
+
+// ── UTILITIES ────────────────────────────────────────────────
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function fmtDate(ts) { return new Date(ts).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"}); }
+function fmtDateTime(ts) { return new Date(ts).toLocaleString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}); }
+function makeFilename(trial, trt, rep, plot, ts) {
+  const d = new Date(ts);
+  const ds = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+  const tm = `${String(d.getHours()).padStart(2,"0")}${String(d.getMinutes()).padStart(2,"0")}`;
+  const t = (trt||"Trt").replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
+  return `${trial.trialId}_${t}_Rep${rep}_Plot${plot}_${ds}_${tm}.jpg`;
+}
+
+// ── WEATHER ──────────────────────────────────────────────────
+const Weather = {
+  async fetch(lat, lon, apiKey) {
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error("Weather API error: " + r.status);
+    return r.json();
+  },
+  icon(code) {
+    const map = {
+      "01d":"☀️","01n":"🌙","02d":"⛅","02n":"☁️","03d":"☁️","03n":"☁️",
+      "04d":"☁️","04n":"☁️","09d":"🌧️","09n":"🌧️","10d":"🌦️","10n":"🌧️",
+      "11d":"⛈️","11n":"⛈️","13d":"❄️","13n":"❄️","50d":"🌫️","50n":"🌫️"
+    };
+    return map[code] || "🌤️";
+  }
+};
+
+// ── GOOGLE DRIVE ─────────────────────────────────────────────
+const Drive = {
+  CLIENT_ID: null,
+  API_KEY: null,
+  SCOPES: "https://www.googleapis.com/auth/drive.file",
+  tokenClient: null,
+  accessToken: null,
+  connected: false,
+
+  init(clientId) {
+    this.CLIENT_ID = clientId;
+    DB.setConfig("driveClientId", clientId);
+  },
+
+  async loadGapi() {
+    if (window.gapi && window.gapi.client) return;
+    await new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = "https://apis.google.com/js/api.js";
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+    await new Promise(res => gapi.load("client", res));
+    await gapi.client.init({});
+    await gapi.client.load("https://www.googleapis.com/discovery/v1/apis/drive/v3/rest");
+  },
+
+  async loadGis() {
+    if (window.google && window.google.accounts) return;
+    await new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = "https://accounts.google.com/gsi/client";
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  },
+
+  async authorize() {
+    if (!this.CLIENT_ID) throw new Error("No Client ID set");
+    await this.loadGapi();
+    await this.loadGis();
+    return new Promise((resolve, reject) => {
+      this.tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: this.CLIENT_ID,
+        scope: this.SCOPES,
+        callback: (resp) => {
+          if (resp.error) { reject(resp); return; }
+          this.accessToken = resp.access_token;
+          this.connected = true;
+          DB.setConfig("driveConnected", true);
+          resolve(resp);
+        },
+      });
+      this.tokenClient.requestAccessToken({ prompt: "consent" });
+    });
+  },
+
+  async findOrCreateFolder(name, parentId) {
+    const q = `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false` +
+      (parentId ? ` and '${parentId}' in parents` : "");
+    const resp = await gapi.client.drive.files.list({ q, fields: "files(id,name)", spaces: "drive" });
+    if (resp.result.files && resp.result.files.length > 0) return resp.result.files[0].id;
+    const meta = { name, mimeType: "application/vnd.google-apps.folder" };
+    if (parentId) meta.parents = [parentId];
+    const cr = await gapi.client.drive.files.create({ resource: meta, fields: "id" });
+    return cr.result.id;
+  },
+
+  async uploadFile(name, data, mimeType, folderId) {
+    const boundary = "fieldtrack_boundary";
+    const metadata = { name, parents: [folderId] };
+    const body =
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n` +
+      JSON.stringify(metadata) +
+      `\r\n--${boundary}\r\nContent-Type: ${mimeType}\r\nContent-Transfer-Encoding: base64\r\n\r\n` +
+      data +
+      `\r\n--${boundary}--`;
+    const resp = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + this.accessToken,
+        "Content-Type": "multipart/related; boundary=" + boundary,
+      },
+      body,
+    });
+    return resp.json();
+  },
+
+  async savePhotoAndMeta(trial, photoData, meta) {
+    if (!this.connected || !this.accessToken) throw new Error("Not connected to Drive");
+    const root = await this.findOrCreateFolder("FieldTrack");
+    const yearFolder = await this.findOrCreateFolder(String(new Date().getFullYear()), root);
+    const typeFolder = await this.findOrCreateFolder(trial.type === "industry" ? "Industry" : "Research", yearFolder);
+    let trialFolderParent = typeFolder;
+    if (trial.type === "industry" && trial.sponsor) {
+      trialFolderParent = await this.findOrCreateFolder(trial.sponsor, typeFolder);
+    }
+    const trialFolder = await this.findOrCreateFolder(`${trial.trialId}_${trial.name.replace(/[^a-zA-Z0-9]/g,"_")}`, trialFolderParent);
+    const plotFolder = await this.findOrCreateFolder(`Plot_${meta.plot}_Rep${meta.rep}`, trialFolder);
+
+    // Upload photo
+    const b64 = photoData.split(",")[1];
+    const imgResult = await this.uploadFile(meta.filename, b64, "image/jpeg", plotFolder);
+
+    // Upload metadata JSON
+    const metaJson = btoa(JSON.stringify({ ...meta, drivePhotoId: imgResult.id, uploadedAt: new Date().toISOString() }, null, 2));
+    const metaFilename = meta.filename.replace(".jpg", "_meta.json");
+    await this.uploadFile(metaFilename, metaJson, "application/json", plotFolder);
+
+    return imgResult;
+  }
+};
+
+// Check stored config
+const storedClientId = DB.getConfig("driveClientId");
+if (storedClientId) Drive.CLIENT_ID = storedClientId;
+
+// ── APP STATE ────────────────────────────────────────────────
+let state = {
+  view: "dashboard", // dashboard | trial-detail | camera | gallery | settings
+  selectedTrial: null,
+  modal: null, // null | "add-trial" | "edit-trial" | "settings-weather" | "settings-drive" | "photo-view"
+  weather: null,
+  weatherLoading: false,
+  weatherError: null,
+  cameraStream: null,
+  cameraReady: false,
+  capturedPhoto: null,
+  cameraTrt: "",
+  cameraRep: "1",
+  cameraPlot: "1",
+  cameraNotes: "",
+  viewingPhoto: null,
+  toasts: [],
+};
+
+function toast(msg, type = "success") {
+  const id = uid();
+  state.toasts.push({ id, msg, type });
+  render();
+  setTimeout(() => { state.toasts = state.toasts.filter(t => t.id !== id); render(); }, 3000);
+}
+
+// ── RENDER ───────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = `
+    <div class="app">
+      ${renderHeader()}
+      <div class="main fade-in">
+        ${state.view === "dashboard" ? renderDashboard() : ""}
+        ${state.view === "trial-detail" ? renderTrialDetail() : ""}
+        ${state.view === "camera" ? renderCamera() : ""}
+        ${state.view === "gallery" ? renderGallery() : ""}
+        ${state.view === "settings" ? renderSettings() : ""}
+      </div>
+      ${state.view !== "camera" ? renderBottomNav() : ""}
+      ${state.view === "dashboard" ? `<button class="fab" onclick="openAddTrial()">+</button>` : ""}
+      ${state.modal ? renderModal() : ""}
+      <div class="toast-container">${state.toasts.map(t => `<div class="toast ${t.type}">${t.msg}</div>`).join("")}</div>
+    </div>
+  `;
+  if (state.view === "camera" && !state.capturedPhoto) initCamera();
+}
+
+// ── HEADER ───────────────────────────────────────────────────
+function renderHeader() {
+  return `
+    <div class="header">
+      <div class="header-brand">
+        <div class="icon">🌾</div>
+        <div>
+          <h1>FieldTrack</h1>
+          <span>${DB.trials.length} trial${DB.trials.length !== 1 ? "s" : ""} active</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn ${Drive.connected ? 'active' : ''}" onclick="navigate('settings')" title="Settings">⚙️</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────
+function renderDashboard() {
+  const wx = state.weather;
+  const weatherHtml = wx ? `
+    <div class="weather-strip" onclick="openWeatherSettings()">
+      <span class="wx-icon">${Weather.icon(wx.weather[0].icon)}</span>
+      <span class="wx-temp">${Math.round(wx.main.temp)}°F</span>
+      <div class="wx-details">
+        <span>💧 ${wx.main.humidity}%</span>
+        <span>💨 ${Math.round(wx.wind.speed)} mph</span>
+        ${wx.main.feels_like ? `<span>🌡️ Feels ${Math.round(wx.main.feels_like)}°F</span>` : ""}
+      </div>
+      <span class="wx-loc">${wx.name || ""}</span>
+    </div>
+  ` : `
+    <div class="weather-strip empty" onclick="openWeatherSettings()">
+      🌤️ &nbsp;Tap to set up weather — tracks conditions for your field notes
+    </div>
+  `;
+
+  const driveHtml = `
+    <div class="drive-bar">
+      <span class="drive-dot ${Drive.connected ? 'on' : 'off'}"></span>
+      <span>${Drive.connected ? "Google Drive syncing" : "Drive not connected"}</span>
+      ${!Drive.connected ? `<span style="margin-left:auto;color:var(--primary);cursor:pointer;font-weight:600" onclick="navigate('settings')">Setup →</span>` : ""}
+    </div>
+  `;
+
+  const industryTrials = DB.trials.filter(t => t.type === "industry");
+  const researchTrials = DB.trials.filter(t => t.type === "research");
+
+  return `
+    ${weatherHtml}
+    ${driveHtml}
+
+    ${industryTrials.length > 0 ? `
+      <div class="section-title">Industry Funded</div>
+      <div class="trials-list">
+        ${industryTrials.map(t => renderTrialCard(t)).join("")}
+      </div>
+    ` : ""}
+
+    ${researchTrials.length > 0 ? `
+      <div class="section-title">Graduate Research</div>
+      <div class="trials-list">
+        ${researchTrials.map(t => renderTrialCard(t)).join("")}
+      </div>
+    ` : ""}
+
+    ${DB.trials.length === 0 ? `
+      <div class="empty-state">
+        <div class="em-icon">📋</div>
+        <div>No trials yet</div>
+        <div style="color:var(--text-dim);margin-top:6px;font-size:13px">Tap + to add your first field trial</div>
+      </div>
+    ` : ""}
+  `;
+}
+
+function renderTrialCard(t) {
+  const count = DB.getTrialPhotos(t.id).length;
+  const isIndustry = t.type === "industry";
+  return `
+    <div class="trial-card" onclick="openTrialDetail('${t.id}')">
+      <div class="trial-icon ${isIndustry ? 'industry' : 'research'}">${isIndustry ? "🏢" : "🔬"}</div>
+      <div class="trial-info">
+        <div class="trial-name">${esc(t.name)}</div>
+        <div class="trial-meta">
+          ${esc(t.trialId)} · ${esc(t.crop)} · ${count} photo${count!==1?"s":""}
+          ${isIndustry && t.sponsor ? `<span class="badge industry">${esc(t.sponsor)}</span>` : ""}
+          ${!isIndustry ? `<span class="badge">Research</span>` : ""}
+        </div>
+      </div>
+      <span class="chevron">›</span>
+    </div>
+  `;
+}
+
+// ── TRIAL DETAIL ─────────────────────────────────────────────
+function renderTrialDetail() {
+  const t = DB.trials.find(x => x.id === state.selectedTrial);
+  if (!t) { state.view = "dashboard"; return renderDashboard(); }
+  const photos = DB.getTrialPhotos(t.id);
+  const trts = [...new Set(photos.map(p => p.treatment))].filter(Boolean);
+
+  return `
+    <div class="detail-header">
+      <button class="back-btn" onclick="navigate('dashboard')">←</button>
+      <div style="flex:1">
+        <div style="font-size:17px;font-weight:700;color:var(--white)">${esc(t.name)}</div>
+        <div style="font-size:12px;color:var(--text-muted)">${esc(t.trialId)} · ${esc(t.crop)}</div>
+      </div>
+      <button class="icon-btn" onclick="openEditTrial('${t.id}')" title="Edit">✏️</button>
+    </div>
+
+    <div class="detail-stats">
+      <div class="stat-card"><div class="stat-val">${photos.length}</div><div class="stat-label">Photos</div></div>
+      <div class="stat-card"><div class="stat-val">${t.reps || "—"}</div><div class="stat-label">Reps</div></div>
+      <div class="stat-card"><div class="stat-val">${t.plots || "—"}</div><div class="stat-label">Plots</div></div>
+      <div class="stat-card"><div class="stat-val">${trts.length}</div><div class="stat-label">Treatments</div></div>
+    </div>
+
+    <div style="margin-bottom:12px">
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">
+        ${t.startDate ? `${fmtDate(t.startDate)}` : ""} ${t.endDate ? `— ${fmtDate(t.endDate)}` : ""}
+      </div>
+      ${t.location ? `<div style="font-size:12px;color:var(--text-dim)">📍 ${esc(t.location)}</div>` : ""}
+      ${t.notes ? `<div style="font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.5">${esc(t.notes)}</div>` : ""}
+    </div>
+
+    ${t.treatments && t.treatments.length > 0 ? `
+      <div class="section-title" style="margin-top:16px">Treatments</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">
+        ${t.treatments.map(tr => `<span style="font-size:12px;padding:5px 10px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--text)">${esc(tr)}</span>`).join("")}
+      </div>
+    ` : ""}
+
+    <button class="btn btn-primary" style="margin-bottom:12px" onclick="openCameraForTrial('${t.id}')">📷 &nbsp;Capture Photos</button>
+
+    ${photos.length > 0 ? `
+      <div class="section-title" style="margin-top:16px">Recent Photos</div>
+      <div class="gallery-grid">
+        ${photos.slice(-9).reverse().map(p => `
+          <div class="gallery-thumb" onclick="viewPhoto('${p.id}')">
+            <img src="${p.dataUrl}" alt="${esc(p.filename)}" loading="lazy">
+            <div class="thumb-overlay">Rep${p.rep} P${p.plot}</div>
+          </div>
+        `).join("")}
+      </div>
+    ` : `
+      <div class="empty-state" style="padding:24px">
+        <div class="em-icon">📷</div>
+        <div>No photos yet — start capturing</div>
+      </div>
+    `}
+  `;
+}
+
+// ── CAMERA ───────────────────────────────────────────────────
+function renderCamera() {
+  const t = DB.trials.find(x => x.id === state.selectedTrial);
+  if (!t) return "";
+  const treatments = t.treatments || [];
+
+  if (state.capturedPhoto) {
+    return `
+      <div style="position:relative">
+        <div class="camera-meta-bar">
+          <span class="tag">${esc(t.trialId)}</span>
+          <span class="tag gold">${esc(state.cameraTrt || "No Trt")}</span>
+          <span class="tag">Rep ${state.cameraRep} · Plot ${state.cameraPlot}</span>
+        </div>
+        <div style="border-radius:var(--radius);overflow:hidden">
+          <img src="${state.capturedPhoto}" style="width:100%;display:block">
+        </div>
+        <div class="form-group" style="margin-top:12px">
+          <input class="form-input" placeholder="Notes (optional)" value="${esc(state.cameraNotes)}" oninput="state.cameraNotes=this.value">
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button class="btn btn-outline" onclick="retakePhoto()">↩ Retake</button>
+          <button class="btn btn-primary" onclick="savePhoto()">💾 Save Photo</button>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="camera-meta-bar">
+      <span class="tag">${esc(t.trialId)}</span>
+      ${state.cameraTrt ? `<span class="tag gold">${esc(state.cameraTrt)}</span>` : ""}
+      <span class="tag">Rep ${state.cameraRep} · Plot ${state.cameraPlot}</span>
+    </div>
+
+    <div class="form-row" style="margin-bottom:10px">
+      <div class="form-group" style="flex:2">
+        <select class="form-select" onchange="state.cameraTrt=this.value;render()">
+          <option value="">Select treatment</option>
+          ${treatments.map(tr => `<option value="${esc(tr)}" ${state.cameraTrt===tr?"selected":""}>${esc(tr)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="number" min="1" placeholder="Rep" value="${state.cameraRep}" onchange="state.cameraRep=this.value">
+      </div>
+      <div class="form-group">
+        <input class="form-input" type="number" min="1" placeholder="Plot" value="${state.cameraPlot}" onchange="state.cameraPlot=this.value">
+      </div>
+    </div>
+
+    <div class="camera-view">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <canvas id="cam-canvas"></canvas>
+      <div class="camera-controls">
+        <button class="icon-btn" style="background:rgba(255,255,255,0.15);border-color:transparent;color:#fff" onclick="navigate('trial-detail')">✕</button>
+        <button class="shutter-btn" onclick="capturePhoto()"><div class="inner"></div></button>
+        <button class="icon-btn" style="background:rgba(255,255,255,0.15);border-color:transparent;color:#fff;font-size:14px" onclick="incrementPlot()">P+1</button>
+      </div>
+    </div>
+  `;
+}
+
+async function initCamera() {
+  try {
+    if (state.cameraStream) { state.cameraStream.getTracks().forEach(t => t.stop()); }
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
+    });
+    state.cameraStream = stream;
+    const vid = document.getElementById("cam-video");
+    if (vid) { vid.srcObject = stream; state.cameraReady = true; }
+  } catch(e) {
+    toast("Camera access denied: " + e.message, "error");
+  }
+}
+
+function capturePhoto() {
+  const vid = document.getElementById("cam-video");
+  const canvas = document.getElementById("cam-canvas");
+  if (!vid || !canvas) return;
+  canvas.width = vid.videoWidth;
+  canvas.height = vid.videoHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(vid, 0, 0);
+  state.capturedPhoto = canvas.toDataURL("image/jpeg", 0.82);
+  if (state.cameraStream) { state.cameraStream.getTracks().forEach(t => t.stop()); state.cameraStream = null; }
+  render();
+}
+
+function retakePhoto() {
+  state.capturedPhoto = null;
+  render();
+}
+
+function incrementPlot() {
+  state.cameraPlot = String(parseInt(state.cameraPlot || "1") + 1);
+  render();
+}
+
+async function savePhoto() {
+  const t = DB.trials.find(x => x.id === state.selectedTrial);
+  if (!t) return;
+  const now = Date.now();
+  const filename = makeFilename(t, state.cameraTrt, state.cameraRep, state.cameraPlot, now);
+  const meta = {
+    id: uid(),
+    trialId: t.id,
+    trialName: t.name,
+    trialIdCode: t.trialId,
+    treatment: state.cameraTrt,
+    rep: state.cameraRep,
+    plot: state.cameraPlot,
+    notes: state.cameraNotes,
+    filename,
+    timestamp: now,
+    weather: state.weather ? {
+      temp: Math.round(state.weather.main.temp),
+      humidity: state.weather.main.humidity,
+      wind: Math.round(state.weather.wind.speed),
+      desc: state.weather.weather[0].description,
+    } : null,
+    dataUrl: state.capturedPhoto,
+    savedToDrive: false,
+  };
+
+  DB.addPhoto(meta);
+  toast(`✓ Saved: Rep${meta.rep} Plot${meta.plot}`);
+
+  // Auto-save to Drive if connected
+  if (Drive.connected && Drive.accessToken) {
+    try {
+      const result = await Drive.savePhotoAndMeta(t, state.capturedPhoto, meta);
+      const idx = DB.photos.findIndex(p => p.id === meta.id);
+      if (idx >= 0) { DB.photos[idx].savedToDrive = true; DB.photos[idx].driveLink = result.webViewLink; DB.save(); }
+      toast("📁 Synced to Google Drive");
+    } catch(e) {
+      toast("Drive sync failed: " + e.message, "error");
+    }
+  }
+
+  // Auto-increment plot
+  state.cameraPlot = String(parseInt(state.cameraPlot || "1") + 1);
+  state.capturedPhoto = null;
+  state.cameraNotes = "";
+  render();
+}
+
+// ── GALLERY ──────────────────────────────────────────────────
+function renderGallery() {
+  const photos = state.selectedTrial
+    ? DB.getTrialPhotos(state.selectedTrial)
+    : DB.photos;
+
+  return `
+    <div class="detail-header">
+      <button class="back-btn" onclick="navigate(state.selectedTrial ? 'trial-detail' : 'dashboard')">←</button>
+      <div style="flex:1"><div style="font-size:17px;font-weight:700;color:var(--white)">Photo Gallery</div>
+      <div style="font-size:12px;color:var(--text-muted)">${photos.length} photo${photos.length!==1?"s":""}</div></div>
+    </div>
+    ${photos.length > 0 ? `
+      <div class="gallery-grid">
+        ${photos.slice().reverse().map(p => `
+          <div class="gallery-thumb" onclick="viewPhoto('${p.id}')">
+            <img src="${p.dataUrl}" alt="${esc(p.filename)}" loading="lazy">
+            <div class="thumb-overlay">
+              ${p.savedToDrive ? "☁️ " : ""}R${p.rep}P${p.plot}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    ` : `
+      <div class="empty-state"><div class="em-icon">🖼️</div><div>No photos yet</div></div>
+    `}
+  `;
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────
+function renderSettings() {
+  const wxKey = DB.getConfig("weatherApiKey") || "";
+  const wxLat = DB.getConfig("weatherLat") || "";
+  const wxLon = DB.getConfig("weatherLon") || "";
+  const driveId = DB.getConfig("driveClientId") || "";
+
+  return `
+    <div class="detail-header">
+      <button class="back-btn" onclick="navigate('dashboard')">←</button>
+      <div style="flex:1"><div style="font-size:17px;font-weight:700;color:var(--white)">Settings</div></div>
+    </div>
+
+    <div class="section-title">Weather — OpenWeatherMap</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div class="form-group">
+        <label class="form-label">API Key</label>
+        <input class="form-input" id="wx-key" type="text" placeholder="Your OpenWeatherMap API key" value="${esc(wxKey)}">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Latitude</label>
+          <input class="form-input" id="wx-lat" type="text" placeholder="40.8136" value="${esc(wxLat)}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitude</label>
+          <input class="form-input" id="wx-lon" type="text" placeholder="-96.7026" value="${esc(wxLon)}">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="useMyLocation()">📍 Use My Location</button>
+        <button class="btn btn-primary btn-sm" onclick="saveWeatherSettings()">Save & Fetch</button>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text-dim)">
+        Free key at <span style="color:var(--info)">openweathermap.org/api</span> → Sign up → API Keys
+      </div>
+    </div>
+
+    <div class="section-title">Google Drive Sync</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div class="drive-bar" style="margin-bottom:12px">
+        <span class="drive-dot ${Drive.connected ? 'on' : 'off'}"></span>
+        <span>${Drive.connected ? "Connected — photos auto-sync" : "Not connected"}</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Google OAuth Client ID</label>
+        <input class="form-input" id="drive-id" type="text" placeholder="xxxx.apps.googleusercontent.com" value="${esc(driveId)}">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="connectDrive()">
+        ${Drive.connected ? "🔄 Reconnect" : "🔗 Connect Google Drive"}
+      </button>
+      <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6">
+        <strong style="color:var(--text-muted)">Setup (one-time, ~5 min):</strong><br>
+        1. Go to <span style="color:var(--info)">console.cloud.google.com</span><br>
+        2. Create project → Enable Google Drive API<br>
+        3. Credentials → Create OAuth Client ID<br>
+        4. Type: Web app → Add your origin to Authorized JS Origins<br>
+        5. Copy Client ID here
+      </div>
+    </div>
+
+    <div class="section-title">Data</div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
+        ${DB.trials.length} trials · ${DB.photos.length} photos stored locally
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="exportData()">📤 Export JSON</button>
+        <button class="btn btn-outline btn-sm" style="border-color:var(--danger);color:var(--danger)" onclick="clearAllData()">🗑️ Clear All</button>
+      </div>
+    </div>
+  `;
+}
+
+function useMyLocation() {
+  if (!navigator.geolocation) { toast("Geolocation not available", "error"); return; }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      document.getElementById("wx-lat").value = pos.coords.latitude.toFixed(4);
+      document.getElementById("wx-lon").value = pos.coords.longitude.toFixed(4);
+      toast("📍 Location detected");
+    },
+    (err) => toast("Location error: " + err.message, "error")
+  );
+}
+
+async function saveWeatherSettings() {
+  const key = document.getElementById("wx-key").value.trim();
+  const lat = document.getElementById("wx-lat").value.trim();
+  const lon = document.getElementById("wx-lon").value.trim();
+  if (!key || !lat || !lon) { toast("Fill in all weather fields", "error"); return; }
+  DB.setConfig("weatherApiKey", key);
+  DB.setConfig("weatherLat", lat);
+  DB.setConfig("weatherLon", lon);
+  await fetchWeather();
+  toast("Weather settings saved ✓");
+}
+
+async function fetchWeather() {
+  const key = DB.getConfig("weatherApiKey");
+  const lat = DB.getConfig("weatherLat");
+  const lon = DB.getConfig("weatherLon");
+  if (!key || !lat || !lon) return;
+  state.weatherLoading = true;
+  try {
+    state.weather = await Weather.fetch(lat, lon, key);
+    state.weatherError = null;
+  } catch(e) {
+    state.weatherError = e.message;
+    toast("Weather fetch failed: " + e.message, "error");
+  }
+  state.weatherLoading = false;
+  render();
+}
+
+async function connectDrive() {
+  const clientId = document.getElementById("drive-id").value.trim();
+  if (!clientId) { toast("Enter a Client ID", "error"); return; }
+  Drive.init(clientId);
+  try {
+    await Drive.authorize();
+    toast("✓ Google Drive connected!");
+    render();
+  } catch(e) {
+    toast("Drive auth failed: " + (e.error_description || e.message || "Unknown"), "error");
+  }
+}
+
+function exportData() {
+  const dataStr = JSON.stringify(DB._store, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `fieldtrack_export_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  toast("Data exported ✓");
+}
+
+function clearAllData() {
+  if (!confirm("Delete ALL trials and photos? This cannot be undone.")) return;
+  localStorage.removeItem("fieldtrack_data");
+  DB._store = { trials: [], photos: [], config: DB._store.config };
+  DB.save();
+  toast("All data cleared");
+  render();
+}
+
+// ── MODALS ───────────────────────────────────────────────────
+function renderModal() {
+  if (state.modal === "add-trial") return renderTrialForm(null);
+  if (state.modal === "edit-trial") return renderTrialForm(DB.trials.find(t => t.id === state.selectedTrial));
+  if (state.modal === "photo-view") return renderPhotoViewModal();
+  return "";
+}
+
+function renderTrialForm(existing) {
+  const t = existing || {};
+  return `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>${existing ? "Edit Trial" : "Add New Trial"}</h2>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <form onsubmit="event.preventDefault();saveTrial(${existing ? `'${t.id}'` : 'null'})">
+          <div class="form-row">
+            <div class="form-group" style="flex:1.5">
+              <label class="form-label">Trial Name *</label>
+              <input class="form-input" id="tf-name" required value="${esc(t.name||"")}" placeholder="e.g. PRE Corn Herbicide Eval">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Trial ID *</label>
+              <input class="form-input" id="tf-id" required value="${esc(t.trialId||"")}" placeholder="CORN-001" style="font-family:var(--mono)">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Type *</label>
+              <select class="form-select" id="tf-type" onchange="toggleSponsor()">
+                <option value="industry" ${t.type==="industry"?"selected":""}>Industry</option>
+                <option value="research" ${t.type==="research"?"selected":""}>Research</option>
+              </select>
+            </div>
+            <div class="form-group" id="sponsor-group">
+              <label class="form-label">Sponsor</label>
+              <select class="form-select" id="tf-sponsor">
+                <option value="">—</option>
+                ${["Bayer","BASF","Syngenta","Corteva","FMC","AMVAC","Nufarm","Other"].map(s => `<option value="${s}" ${t.sponsor===s?"selected":""}>${s}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Crop *</label>
+              <select class="form-select" id="tf-crop">
+                ${["Corn","Soybean","Edamame","Sorghum","Wheat","Cotton","Sugarbeet","Sunflower","Other"].map(c => `<option value="${c}" ${t.crop===c?"selected":""}>${c}</option>`).join("")}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Location</label>
+              <input class="form-input" id="tf-loc" value="${esc(t.location||"")}" placeholder="SCAL, Mead, NE">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Start Date</label>
+              <input class="form-input" id="tf-start" type="date" value="${t.startDate ? new Date(t.startDate).toISOString().slice(0,10) : ""}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date</label>
+              <input class="form-input" id="tf-end" type="date" value="${t.endDate ? new Date(t.endDate).toISOString().slice(0,10) : ""}">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Reps</label>
+              <input class="form-input" id="tf-reps" type="number" min="1" value="${t.reps||4}" placeholder="4">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Plots/Rep</label>
+              <input class="form-input" id="tf-plots" type="number" min="1" value="${t.plots||""}" placeholder="e.g. 12">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Treatments (one per line)</label>
+            <textarea class="form-textarea" id="tf-trts" placeholder="Atrazine 1 qt/a&#10;Mesotrione 3 oz/a&#10;Untreated Check">${(t.treatments||[]).join("\n")}</textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea class="form-textarea" id="tf-notes" placeholder="Any additional notes…" style="min-height:60px">${esc(t.notes||"")}</textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit">${existing ? "Update Trial" : "Create Trial"}</button>
+          ${existing ? `<button class="btn btn-outline" type="button" style="margin-top:8px;border-color:var(--danger);color:var(--danger)" onclick="deleteTrial('${t.id}')">Delete Trial</button>` : ""}
+        </form>
+      </div>
+    </div>
+  `;
+}
+
+function renderPhotoViewModal() {
+  const p = DB.photos.find(x => x.id === state.viewingPhoto);
+  if (!p) return "";
+  return `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal modal-full" style="padding:0;background:#000;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(0,0,0,0.8)">
+          <span style="font-size:13px;font-family:var(--mono);color:var(--text-muted)">${esc(p.filename)}</span>
+          <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:auto">
+          <img src="${p.dataUrl}" style="max-width:100%;max-height:80vh">
+        </div>
+        <div style="padding:14px 16px;background:var(--surface);border-top:1px solid var(--border)">
+          <div style="font-size:13px;color:var(--white);font-weight:600;margin-bottom:4px">
+            ${esc(p.treatment||"No Treatment")} · Rep ${p.rep} · Plot ${p.plot}
+          </div>
+          <div style="font-size:12px;color:var(--text-muted)">${fmtDateTime(p.timestamp)}</div>
+          ${p.weather ? `<div style="font-size:11px;color:var(--text-dim);margin-top:4px">🌡️ ${p.weather.temp}°F · 💧 ${p.weather.humidity}% · 💨 ${p.weather.wind} mph · ${p.weather.desc}</div>` : ""}
+          ${p.notes ? `<div style="font-size:12px;color:var(--text-muted);margin-top:6px">📝 ${esc(p.notes)}</div>` : ""}
+          <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+            ${p.savedToDrive ? `<span class="saved-badge drive">☁️ Saved to Drive</span>` : `<span class="saved-badge">📱 Local only</span>`}
+            <button class="btn btn-outline btn-sm" style="margin-left:auto" onclick="downloadPhoto('${p.id}')">⬇ Download</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── NAVIGATION ───────────────────────────────────────────────
+function renderBottomNav() {
+  return `
+    <div class="bottom-nav">
+      <button class="nav-item ${state.view==='dashboard'?'active':''}" onclick="navigate('dashboard')">
+        <span class="ni">📋</span>Trials
+      </button>
+      <button class="nav-item ${state.view==='gallery'?'active':''}" onclick="state.selectedTrial=null;navigate('gallery')">
+        <span class="ni">🖼️</span>Gallery
+      </button>
+      <button class="nav-item ${state.view==='settings'?'active':''}" onclick="navigate('settings')">
+        <span class="ni">⚙️</span>Settings
+      </button>
+    </div>
+  `;
+}
+
+function navigate(view) {
+  if (state.cameraStream) { state.cameraStream.getTracks().forEach(t => t.stop()); state.cameraStream = null; }
+  state.capturedPhoto = null;
+  state.view = view;
+  state.modal = null;
+  render();
+}
+
+// ── ACTIONS ──────────────────────────────────────────────────
+function openAddTrial() { state.modal = "add-trial"; render(); }
+function openEditTrial(id) { state.selectedTrial = id; state.modal = "edit-trial"; render(); }
+function closeModal() { state.modal = null; state.viewingPhoto = null; render(); }
+
+function openTrialDetail(id) {
+  state.selectedTrial = id;
+  state.view = "trial-detail";
+  render();
+}
+
+function openCameraForTrial(id) {
+  state.selectedTrial = id;
+  state.view = "camera";
+  state.capturedPhoto = null;
+  state.cameraTrt = "";
+  state.cameraRep = "1";
+  state.cameraPlot = "1";
+  state.cameraNotes = "";
+  render();
+}
+
+function viewPhoto(id) {
+  state.viewingPhoto = id;
+  state.modal = "photo-view";
+  render();
+}
+
+function downloadPhoto(id) {
+  const p = DB.photos.find(x => x.id === id);
+  if (!p) return;
+  const a = document.createElement("a");
+  a.href = p.dataUrl; a.download = p.filename;
+  a.click();
+  toast("Downloaded ✓");
+}
+
+function toggleSponsor() {
+  const type = document.getElementById("tf-type").value;
+  const sg = document.getElementById("sponsor-group");
+  if (sg) sg.style.display = type === "industry" ? "" : "none";
+}
+
+function saveTrial(existingId) {
+  const name = document.getElementById("tf-name").value.trim();
+  const trialId = document.getElementById("tf-id").value.trim();
+  const type = document.getElementById("tf-type").value;
+  const sponsor = document.getElementById("tf-sponsor")?.value || "";
+  const crop = document.getElementById("tf-crop").value;
+  const location = document.getElementById("tf-loc").value.trim();
+  const startDate = document.getElementById("tf-start").value ? new Date(document.getElementById("tf-start").value).getTime() : null;
+  const endDate = document.getElementById("tf-end").value ? new Date(document.getElementById("tf-end").value).getTime() : null;
+  const reps = parseInt(document.getElementById("tf-reps").value) || 4;
+  const plots = parseInt(document.getElementById("tf-plots").value) || null;
+  const treatments = document.getElementById("tf-trts").value.split("\n").map(s => s.trim()).filter(Boolean);
+  const notes = document.getElementById("tf-notes").value.trim();
+
+  if (!name || !trialId) { toast("Name and ID are required", "error"); return; }
+
+  const data = { name, trialId, type, sponsor, crop, location, startDate, endDate, reps, plots, treatments, notes, updatedAt: Date.now() };
+
+  if (existingId) {
+    DB.updateTrial(existingId, data);
+    toast("Trial updated ✓");
+  } else {
+    DB.addTrial({ id: uid(), ...data, createdAt: Date.now() });
+    toast("Trial created ✓");
+  }
+  closeModal();
+}
+
+function deleteTrial(id) {
+  const t = DB.trials.find(x => x.id === id);
+  if (!confirm(`Delete "${t?.name}" and all its photos?`)) return;
+  DB.deleteTrial(id);
+  state.selectedTrial = null;
+  state.view = "dashboard";
+  closeModal();
+  toast("Trial deleted");
+}
+
+function openWeatherSettings() { navigate("settings"); }
+
+// ── ESCAPE HTML ──────────────────────────────────────────────
+function esc(s) {
+  if (!s) return "";
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+(async function init() {
+  render();
+  // Auto-fetch weather on load if configured
+  await fetchWeather();
+})();
+</script>
+
+</body>
+</html>
