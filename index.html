@@ -421,21 +421,77 @@ function makeFilename(trial, trt, rep, plot, ts) {
   return `${trial.trialId}_${t}_Rep${rep}_Plot${plot}_${ds}_${tm}.jpg`;
 }
 
-// ── WEATHER ──────────────────────────────────────────────────
+// ── WEATHER (Open-Meteo — free, no API key) ─────────────────
 const Weather = {
-  async fetch(lat, lon, apiKey) {
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=imperial`;
+  async fetch(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph`;
     const r = await fetch(url);
     if (!r.ok) throw new Error("Weather API error: " + r.status);
-    return r.json();
+    const data = await r.json();
+    // Normalize to a simple shape used throughout the app
+    const c = data.current;
+    return {
+      temp: Math.round(c.temperature_2m),
+      feels_like: Math.round(c.apparent_temperature),
+      humidity: c.relative_humidity_2m,
+      wind: Math.round(c.wind_speed_10m),
+      code: c.weather_code,
+      icon: Weather.icon(c.weather_code),
+      desc: Weather.desc(c.weather_code),
+      lat: data.latitude,
+      lon: data.longitude,
+    };
   },
   icon(code) {
-    const map = {
-      "01d":"☀️","01n":"🌙","02d":"⛅","02n":"☁️","03d":"☁️","03n":"☁️",
-      "04d":"☁️","04n":"☁️","09d":"🌧️","09n":"🌧️","10d":"🌦️","10n":"🌧️",
-      "11d":"⛈️","11n":"⛈️","13d":"❄️","13n":"❄️","50d":"🌫️","50n":"🌫️"
-    };
-    return map[code] || "🌤️";
+    if (code === 0) return "☀️";
+    if (code <= 3) return "⛅";
+    if (code <= 48) return "🌫️";
+    if (code <= 57) return "🌧️";
+    if (code <= 65) return "🌦️";
+    if (code <= 67) return "🧊";
+    if (code <= 77) return "❄️";
+    if (code <= 82) return "🌧️";
+    if (code <= 86) return "🌨️";
+    if (code >= 95) return "⛈️";
+    return "🌤️";
+  },
+  desc(code) {
+    if (code === 0) return "Clear sky";
+    if (code === 1) return "Mainly clear";
+    if (code === 2) return "Partly cloudy";
+    if (code === 3) return "Overcast";
+    if (code <= 48) return "Foggy";
+    if (code <= 55) return "Drizzle";
+    if (code <= 57) return "Freezing drizzle";
+    if (code <= 63) return "Rain";
+    if (code === 65) return "Heavy rain";
+    if (code <= 67) return "Freezing rain";
+    if (code <= 75) return "Snow";
+    if (code === 77) return "Snow grains";
+    if (code <= 82) return "Rain showers";
+    if (code <= 86) return "Snow showers";
+    if (code === 95) return "Thunderstorm";
+    if (code >= 96) return "Thunderstorm w/ hail";
+    return "Unknown";
+  },
+  async autoLocateAndFetch() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) { reject(new Error("No GPS")); return; }
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude.toFixed(4);
+          const lon = pos.coords.longitude.toFixed(4);
+          DB.setConfig("weatherLat", lat);
+          DB.setConfig("weatherLon", lon);
+          try {
+            const wx = await Weather.fetch(lat, lon);
+            resolve(wx);
+          } catch(e) { reject(e); }
+        },
+        (err) => reject(err),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
   }
 };
 
@@ -626,19 +682,19 @@ function renderHeader() {
 function renderDashboard() {
   const wx = state.weather;
   const weatherHtml = wx ? `
-    <div class="weather-strip" onclick="openWeatherSettings()">
-      <span class="wx-icon">${Weather.icon(wx.weather[0].icon)}</span>
-      <span class="wx-temp">${Math.round(wx.main.temp)}°F</span>
+    <div class="weather-strip" onclick="fetchWeather()">
+      <span class="wx-icon">${wx.icon}</span>
+      <span class="wx-temp">${wx.temp}°F</span>
       <div class="wx-details">
-        <span>💧 ${wx.main.humidity}%</span>
-        <span>💨 ${Math.round(wx.wind.speed)} mph</span>
-        ${wx.main.feels_like ? `<span>🌡️ Feels ${Math.round(wx.main.feels_like)}°F</span>` : ""}
+        <span>💧 ${wx.humidity}%</span>
+        <span>💨 ${wx.wind} mph</span>
+        <span>🌡️ Feels ${wx.feels_like}°F</span>
       </div>
-      <span class="wx-loc">${wx.name || ""}</span>
+      <span class="wx-loc">${wx.desc}</span>
     </div>
   ` : `
-    <div class="weather-strip empty" onclick="openWeatherSettings()">
-      🌤️ &nbsp;Tap to set up weather — tracks conditions for your field notes
+    <div class="weather-strip empty" onclick="fetchWeather()">
+      ${state.weatherLoading ? "⏳ &nbsp;Detecting location & fetching weather…" : "🌤️ &nbsp;Tap to load weather — auto-detects your location"}
     </div>
   `;
 
@@ -877,10 +933,10 @@ async function savePhoto() {
     filename,
     timestamp: now,
     weather: state.weather ? {
-      temp: Math.round(state.weather.main.temp),
-      humidity: state.weather.main.humidity,
-      wind: Math.round(state.weather.wind.speed),
-      desc: state.weather.weather[0].description,
+      temp: state.weather.temp,
+      humidity: state.weather.humidity,
+      wind: state.weather.wind,
+      desc: state.weather.desc,
     } : null,
     dataUrl: state.capturedPhoto,
     savedToDrive: false,
@@ -939,9 +995,6 @@ function renderGallery() {
 
 // ── SETTINGS ─────────────────────────────────────────────────
 function renderSettings() {
-  const wxKey = DB.getConfig("weatherApiKey") || "";
-  const wxLat = DB.getConfig("weatherLat") || "";
-  const wxLon = DB.getConfig("weatherLon") || "";
   const driveId = DB.getConfig("driveClientId") || "";
 
   return `
@@ -950,28 +1003,27 @@ function renderSettings() {
       <div style="flex:1"><div style="font-size:17px;font-weight:700;color:var(--white)">Settings</div></div>
     </div>
 
-    <div class="section-title">Weather — OpenWeatherMap</div>
+    <div class="section-title">Weather — Auto (Open-Meteo)</div>
     <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px">
-      <div class="form-group">
-        <label class="form-label">API Key</label>
-        <input class="form-input" id="wx-key" type="text" placeholder="Your OpenWeatherMap API key" value="${esc(wxKey)}">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:10px">
+        ${state.weather ? `✅ Weather active — ${state.weather.temp}°F, ${state.weather.desc}` : "Weather loads automatically using your GPS location. No API key needed."}
       </div>
-      <div class="form-row">
+      <div class="form-row" style="margin-bottom:10px">
         <div class="form-group">
           <label class="form-label">Latitude</label>
-          <input class="form-input" id="wx-lat" type="text" placeholder="40.8136" value="${esc(wxLat)}">
+          <input class="form-input" id="wx-lat" type="text" placeholder="Auto-detected" value="${esc(DB.getConfig("weatherLat") || "")}">
         </div>
         <div class="form-group">
           <label class="form-label">Longitude</label>
-          <input class="form-input" id="wx-lon" type="text" placeholder="-96.7026" value="${esc(wxLon)}">
+          <input class="form-input" id="wx-lon" type="text" placeholder="Auto-detected" value="${esc(DB.getConfig("weatherLon") || "")}">
         </div>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-outline btn-sm" onclick="useMyLocation()">📍 Use My Location</button>
-        <button class="btn btn-primary btn-sm" onclick="saveWeatherSettings()">Save & Fetch</button>
+        <button class="btn btn-outline btn-sm" onclick="useMyLocation()">📍 Detect GPS</button>
+        <button class="btn btn-primary btn-sm" onclick="manualWeatherFetch()">🔄 Refresh Weather</button>
       </div>
       <div style="margin-top:10px;font-size:11px;color:var(--text-dim)">
-        Free key at <span style="color:var(--info)">openweathermap.org/api</span> → Sign up → API Keys
+        Powered by Open-Meteo — free, no API key. Override coordinates above for a fixed field location.
       </div>
     </div>
 
@@ -1015,41 +1067,64 @@ function useMyLocation() {
   if (!navigator.geolocation) { toast("Geolocation not available", "error"); return; }
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      document.getElementById("wx-lat").value = pos.coords.latitude.toFixed(4);
-      document.getElementById("wx-lon").value = pos.coords.longitude.toFixed(4);
-      toast("📍 Location detected");
+      const lat = pos.coords.latitude.toFixed(4);
+      const lon = pos.coords.longitude.toFixed(4);
+      DB.setConfig("weatherLat", lat);
+      DB.setConfig("weatherLon", lon);
+      const latEl = document.getElementById("wx-lat");
+      const lonEl = document.getElementById("wx-lon");
+      if (latEl) latEl.value = lat;
+      if (lonEl) lonEl.value = lon;
+      toast("📍 Location detected: " + lat + ", " + lon);
+      fetchWeather();
     },
-    (err) => toast("Location error: " + err.message, "error")
+    (err) => toast("Location error: " + err.message, "error"),
+    { enableHighAccuracy: true, timeout: 10000 }
   );
 }
 
-async function saveWeatherSettings() {
-  const key = document.getElementById("wx-key").value.trim();
-  const lat = document.getElementById("wx-lat").value.trim();
-  const lon = document.getElementById("wx-lon").value.trim();
-  if (!key || !lat || !lon) { toast("Fill in all weather fields", "error"); return; }
-  DB.setConfig("weatherApiKey", key);
-  DB.setConfig("weatherLat", lat);
-  DB.setConfig("weatherLon", lon);
-  await fetchWeather();
-  toast("Weather settings saved ✓");
+function manualWeatherFetch() {
+  const lat = document.getElementById("wx-lat")?.value?.trim();
+  const lon = document.getElementById("wx-lon")?.value?.trim();
+  if (lat && lon) {
+    DB.setConfig("weatherLat", lat);
+    DB.setConfig("weatherLon", lon);
+  }
+  fetchWeather();
 }
 
 async function fetchWeather() {
-  const key = DB.getConfig("weatherApiKey");
-  const lat = DB.getConfig("weatherLat");
-  const lon = DB.getConfig("weatherLon");
-  if (!key || !lat || !lon) return;
-  state.weatherLoading = true;
-  try {
-    state.weather = await Weather.fetch(lat, lon, key);
-    state.weatherError = null;
-  } catch(e) {
-    state.weatherError = e.message;
-    toast("Weather fetch failed: " + e.message, "error");
+  // Try stored coordinates first, then auto-detect via GPS
+  let lat = DB.getConfig("weatherLat");
+  let lon = DB.getConfig("weatherLon");
+
+  if (lat && lon) {
+    state.weatherLoading = true;
+    render();
+    try {
+      state.weather = await Weather.fetch(lat, lon);
+      state.weatherError = null;
+    } catch(e) {
+      state.weatherError = e.message;
+      toast("Weather fetch failed: " + e.message, "error");
+    }
+    state.weatherLoading = false;
+    render();
+  } else {
+    // Auto-detect location
+    state.weatherLoading = true;
+    render();
+    try {
+      state.weather = await Weather.autoLocateAndFetch();
+      state.weatherError = null;
+      toast("📍 Weather loaded via GPS");
+    } catch(e) {
+      state.weatherError = e.message;
+      // Don't show error toast on startup if user hasn't granted GPS yet
+    }
+    state.weatherLoading = false;
+    render();
   }
-  state.weatherLoading = false;
-  render();
 }
 
 async function connectDrive() {
@@ -1319,7 +1394,7 @@ function deleteTrial(id) {
   toast("Trial deleted");
 }
 
-function openWeatherSettings() { navigate("settings"); }
+
 
 // ── ESCAPE HTML ──────────────────────────────────────────────
 function esc(s) {
