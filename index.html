@@ -9,1690 +9,2030 @@
 <meta name="apple-mobile-web-app-title" content="FieldTrack">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
-<title>FieldTrack — Field Trial Capture</title>
+<title>FieldTrack v3 — Field Trial Capture</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"FieldTrack","short_name":"FieldTrack","start_url":"./","display":"standalone","background_color":"%23FAF8F3","theme_color":"%231F4D2E","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"%3E%3Crect width=\"100\" height=\"100\" rx=\"20\" fill=\"%231F4D2E\"/%3E%3Cpath d=\"M25 70 Q 50 30 75 70\" stroke=\"%23FAF8F3\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/%3E%3Ccircle cx=\"50\" cy=\"45\" r=\"4\" fill=\"%23FAF8F3\"/%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231F4D2E'/%3E%3Cpath d='M25 70 Q 50 30 75 70' stroke='%23FAF8F3' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='50' cy='45' r='4' fill='%23FAF8F3'/%3E%3C/svg%3E">
 
 <style>
-/* ============================================================
-   DESIGN TOKENS
-   Scientific field-notebook aesthetic — warm paper + field green
-============================================================ */
 :root{
-  --bg:            #FAF8F3;
-  --bg-tint:       #F2EEE5;
-  --surface:       #FFFFFF;
-  --surface-raised:#FFFFFF;
-  --ink:           #1A1814;
-  --ink-2:         #3A342C;
-  --muted:         #6B6459;
-  --muted-2:       #A39C8F;
-  --line:          #E5DFD1;
-  --line-strong:   #CFC7B4;
-
-  --green:         #1F4D2E;
-  --green-2:       #2F7A3B;
-  --green-soft:    #E4EFE4;
-  --amber:         #C97B2A;
-  --amber-soft:    #FAEAD1;
-  --red:           #B33A3A;
-  --red-soft:      #F5DCDC;
-  --blue:          #2C5F8A;
-  --blue-soft:     #DCE7F0;
-
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 18px;
-  --r-xl: 24px;
-
-  --shadow-sm: 0 1px 2px rgba(30,24,16,.06), 0 0 0 1px rgba(30,24,16,.04);
-  --shadow-md: 0 4px 14px rgba(30,24,16,.08), 0 0 0 1px rgba(30,24,16,.04);
-  --shadow-lg: 0 10px 30px rgba(30,24,16,.12), 0 0 0 1px rgba(30,24,16,.04);
-
-  --tap: 48px;
-  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
-
-  --safe-top: env(safe-area-inset-top);
-  --safe-bot: env(safe-area-inset-bottom);
+  --bg:#FAF8F3;
+  --surface:#FFFFFF;
+  --surface-2:#F5F2EA;
+  --ink:#1A1A1A;
+  --ink-2:#555;
+  --ink-3:#888;
+  --line:#E5E0D4;
+  --line-2:#D4CEBE;
+  --green:#1F4D2E;
+  --green-2:#2E6D42;
+  --green-soft:#E8F0E8;
+  --amber:#B8791F;
+  --amber-soft:#FCF3E3;
+  --red:#A83232;
+  --red-soft:#FAE8E8;
+  --blue:#2B5E8B;
+  --blue-soft:#E8EFF5;
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.04);
+  --radius: 10px;
+  --radius-lg: 14px;
 }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;overscroll-behavior-y:contain}
+body{padding-bottom:calc(70px + env(safe-area-inset-bottom));padding-top:env(safe-area-inset-top)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:600;margin:0 0 8px;color:var(--ink);letter-spacing:-0.01em}
+h1{font-size:26px;line-height:1.2}
+h2{font-size:20px;line-height:1.25}
+h3{font-size:17px;line-height:1.3}
+h4{font-size:15px;line-height:1.3}
+p{margin:0 0 10px}
+a{color:var(--green-2);text-decoration:none}
+.sans{font-family:var(--sans)}
+.small{font-size:13px;color:var(--ink-2)}
+.xs{font-size:11.5px;color:var(--ink-3);letter-spacing:0.03em;text-transform:uppercase;font-weight:600}
+.mono{font-family:var(--mono);font-size:12.5px}
+.muted{color:var(--ink-3)}
+.ink2{color:var(--ink-2)}
 
-/* ============================================================
-   BASE
-============================================================ */
-*,*::before,*::after{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none}
-body{font-size:15px;line-height:1.45;font-feature-settings:"ss01","cv01"}
-button,input,select,textarea{font:inherit;color:inherit}
-button{border:0;background:none;cursor:pointer;padding:0;color:inherit}
-input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;width:100%;min-height:var(--tap);outline:none;transition:border-color .15s, box-shadow .15s}
-input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-soft)}
-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='none' stroke='%236B6459' stroke-width='1.5' d='M1 1l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
-label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;font-weight:600}
+/* ---- Layout ---- */
+.app{max-width:680px;margin:0 auto;padding:0 16px}
+.view{display:none;padding:16px 0 30px}
+.view.active{display:block}
+.row{display:flex;gap:10px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.row.between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:10px}
+.spacer{flex:1}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* ============================================================
-   APP SHELL
-============================================================ */
-#app{min-height:100dvh;display:flex;flex-direction:column;padding-top:var(--safe-top);padding-bottom:calc(var(--safe-bot) + 76px)}
-.view{display:none;flex:1;flex-direction:column}
-.view.active{display:flex;animation:fadeIn .2s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* ---- Top bar ---- */
+.topbar{position:sticky;top:0;background:rgba(250,248,243,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:10px 16px;margin:0 -16px 14px;display:flex;align-items:center;gap:10px;z-index:10}
+.topbar h1{font-size:20px;margin:0;flex:1}
+.topbar .subtitle{font-size:12px;color:var(--ink-3);letter-spacing:0.04em;text-transform:uppercase;font-family:var(--sans);font-weight:600}
+.back-btn{background:none;border:none;padding:6px 8px;font-size:22px;color:var(--green);cursor:pointer;font-weight:600}
 
-/* Top bar */
-.topbar{position:sticky;top:0;z-index:40;background:rgba(250,248,243,.85);backdrop-filter:saturate(1.3) blur(10px);-webkit-backdrop-filter:saturate(1.3) blur(10px);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px}
-.topbar-title{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-.01em;flex:1;display:flex;align-items:center;gap:8px}
-.topbar-title .brand-mark{width:26px;height:26px;border-radius:7px;background:var(--green);display:inline-grid;place-items:center;color:var(--bg);font-size:13px;font-weight:700;font-family:var(--sans)}
-.topbar-actions{display:flex;gap:8px}
-.icon-btn{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:transparent;transition:background .15s}
-.icon-btn:hover,.icon-btn:active{background:var(--bg-tint)}
-.icon-btn svg{width:20px;height:20px;stroke:var(--ink-2);stroke-width:1.8;fill:none}
+/* ---- Cards ---- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card.compact{padding:10px 12px}
+.card.glow{border-color:var(--green);background:var(--green-soft)}
+.card.warn{border-color:var(--amber);background:var(--amber-soft)}
+.card.danger{border-color:var(--red);background:var(--red-soft)}
+.card-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card-title h3{margin:0;flex:1}
 
-/* Status pill */
-.status-strip{display:flex;gap:8px;align-items:center;padding:8px 16px;background:var(--bg-tint);border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted);overflow-x:auto;white-space:nowrap;scrollbar-width:none}
-.status-strip::-webkit-scrollbar{display:none}
-.status-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-weight:500;color:var(--ink-2)}
-.status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--muted-2)}
-.status-pill.on .dot{background:var(--green-2)}
-.status-pill.off .dot{background:var(--muted-2)}
-.status-pill.warn{background:var(--amber-soft);border-color:#EBD4A3;color:#6B4116}
-.status-pill.warn .dot{background:var(--amber)}
-.status-pill.err{background:var(--red-soft);border-color:#E5BCBC;color:#7A2222}
-.status-pill.err .dot{background:var(--red)}
+/* ---- Stats ---- */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px;text-align:center;min-height:82px;display:flex;flex-direction:column;justify-content:center}
+.stat .n{font-family:var(--serif);font-size:28px;color:var(--green);line-height:1;margin-bottom:4px;font-weight:600}
+.stat .l{font-size:11px;color:var(--ink-3);letter-spacing:0.04em;text-transform:uppercase;font-weight:600}
+.stat.pending .n{color:var(--amber)}
+.stat.due .n{color:var(--red)}
 
-/* ============================================================
-   CONTENT
-============================================================ */
-.scroll{flex:1;overflow-y:auto;padding:18px 16px 24px;-webkit-overflow-scrolling:touch}
-.h-display{font-family:var(--serif);font-size:28px;line-height:1.1;letter-spacing:-.015em;font-weight:500;margin:0 0 4px}
-.h-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:600;margin-bottom:6px}
-.h-section{font-family:var(--serif);font-size:18px;font-weight:500;letter-spacing:-.005em;margin:24px 0 10px;display:flex;align-items:baseline;justify-content:space-between}
-.h-section .h-meta{font-family:var(--sans);font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
+/* ---- Buttons ---- */
+button,.btn{font-family:var(--sans);font-size:15px;font-weight:500;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);padding:11px 16px;border-radius:var(--radius);cursor:pointer;min-height:44px;touch-action:manipulation;transition:transform 0.08s ease,background 0.15s ease}
+button:active,.btn:active{transform:scale(0.98)}
+.btn-primary{background:var(--green);color:#FFF;border-color:var(--green)}
+.btn-primary:active{background:var(--green-2)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--green-2)}
+.btn-danger{background:var(--red);color:#FFF;border-color:var(--red)}
+.btn-block{display:block;width:100%}
+.btn-big{min-height:56px;font-size:17px;padding:16px 20px}
+.btn.loading{opacity:0.6;pointer-events:none}
+.btn-row{display:flex;gap:8px}
+.btn-row > *{flex:1}
 
-/* Dashboard hero */
-.hero{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow-sm);margin-bottom:16px;position:relative;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 200px at 110% -20%, var(--green-soft) 0%, transparent 70%);pointer-events:none}
-.hero > *{position:relative}
-.hero-date{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:600}
-.hero-weather{display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line)}
-.hero-weather .temp{font-family:var(--serif);font-size:32px;line-height:1;font-weight:500}
-.hero-weather .meta{font-size:12.5px;color:var(--muted);line-height:1.4}
-.hero-weather .meta b{color:var(--ink-2);font-weight:600}
+/* ---- Chips ---- */
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{font-size:14px;padding:8px 14px;border-radius:22px;border:1px solid var(--line-2);background:var(--surface);cursor:pointer;min-height:38px;display:inline-flex;align-items:center;gap:6px;font-weight:500}
+.chip.active{background:var(--green);color:#FFF;border-color:var(--green)}
+.chip.small{font-size:12px;padding:4px 10px;min-height:28px}
 
-/* Stat grid */
-.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:8px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px;box-shadow:var(--shadow-sm);text-align:left;transition:transform .12s}
-.stat:active{transform:scale(.98)}
-.stat .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600}
-.stat .stat-value{font-family:var(--serif);font-size:30px;line-height:1.05;font-weight:500;margin-top:6px;display:flex;align-items:baseline;gap:6px}
-.stat .stat-unit{font-family:var(--sans);font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em}
-.stat .stat-hint{font-size:11.5px;color:var(--muted);margin-top:4px}
-.stat.accent{background:var(--green);color:var(--bg);border-color:var(--green)}
-.stat.accent .stat-label,.stat.accent .stat-hint{color:rgba(250,248,243,.75)}
-.stat.accent .stat-unit{color:rgba(250,248,243,.6)}
-.stat.warn{background:var(--amber-soft);border-color:#EBD4A3}
-.stat.warn .stat-label{color:#6B4116}
+/* ---- Forms ---- */
+label.field{display:block;margin-bottom:10px}
+label.field > .l{display:block;font-size:12px;color:var(--ink-2);letter-spacing:0.03em;text-transform:uppercase;font-weight:600;margin-bottom:4px}
+label.field > .hint{display:block;font-size:12px;color:var(--ink-3);margin-top:4px}
+input[type=text],input[type=email],input[type=number],input[type=date],select,textarea{
+  font-family:var(--sans);font-size:16px;width:100%;padding:11px 13px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:var(--radius);-webkit-appearance:none;appearance:none;line-height:1.35;
+}
+textarea{min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(31,77,46,0.12)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23555'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:34px}
+.toggle{position:relative;display:inline-block;width:48px;height:28px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;inset:0;background:var(--line-2);border-radius:28px;transition:0.15s;cursor:pointer}
+.toggle .slider::before{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;background:#FFF;border-radius:50%;transition:0.15s}
+.toggle input:checked+.slider{background:var(--green)}
+.toggle input:checked+.slider::before{transform:translateX(20px)}
 
-/* Trial cards */
-.trial-list{display:flex;flex-direction:column;gap:10px}
-.trial-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left;width:100%;box-shadow:var(--shadow-sm);transition:transform .12s, border-color .15s}
-.trial-card:active{transform:scale(.99);border-color:var(--green)}
-.trial-card .tc-accent{width:4px;align-self:stretch;border-radius:3px;background:var(--green)}
-.trial-card[data-sponsor="BASF"] .tc-accent{background:#0C4DA2}
-.trial-card[data-sponsor="Bayer"] .tc-accent{background:#66B512}
-.trial-card[data-sponsor="Syngenta"] .tc-accent{background:#E7761A}
-.trial-card[data-sponsor="Corteva"] .tc-accent{background:#003F5C}
-.trial-card .tc-body{flex:1;min-width:0}
-.trial-card .tc-title{font-family:var(--serif);font-size:16px;font-weight:500;letter-spacing:-.005em;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trial-card .tc-meta{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
-.trial-card .tc-meta span{display:inline-flex;gap:4px;align-items:center}
-.trial-card .tc-meta span::before{content:"·";color:var(--muted-2)}
-.trial-card .tc-meta span:first-child::before{display:none}
-.trial-card .tc-count{font-family:var(--mono);font-size:13px;color:var(--muted);background:var(--bg-tint);padding:3px 8px;border-radius:999px;font-weight:600}
-.trial-card .tc-arrow{color:var(--muted-2);font-size:20px;line-height:1}
+/* ---- Capture screen ---- */
+.capture-card{background:var(--green);color:#FFF;border-radius:var(--radius-lg);padding:18px;margin-bottom:14px}
+.capture-card .xs{color:rgba(255,255,255,0.7)}
+.capture-card h2{color:#FFF;font-size:22px;margin:4px 0 8px}
+.capture-card .meta{font-size:14px;color:rgba(255,255,255,0.85);line-height:1.5}
+.capture-card .plot-big{font-family:var(--serif);font-size:52px;line-height:1;margin:10px 0 4px;font-weight:600;letter-spacing:-0.02em}
+.shutter{width:88px;height:88px;border-radius:50%;background:var(--green);color:#FFF;border:4px solid #FFF;box-shadow:0 0 0 3px var(--green),var(--shadow);font-size:14px;font-weight:600;margin:0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.shutter:active{transform:scale(0.94)}
+.shutter.big{width:120px;height:120px;font-size:15px}
+.capture-actions{display:flex;flex-direction:column;align-items:center;gap:16px;padding:20px 0}
+.preview-img{max-width:100%;max-height:320px;border-radius:var(--radius);display:block;margin:0 auto;border:1px solid var(--line)}
 
-/* Empty state */
-.empty{text-align:center;padding:28px 16px;color:var(--muted);background:var(--surface);border:1px dashed var(--line-strong);border-radius:var(--r-md)}
-.empty .emoji{font-size:28px;margin-bottom:6px;filter:grayscale(.3)}
-.empty p{margin:0 0 10px}
+/* ---- Trial list items ---- */
+.trial-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer}
+.trial-item:active{background:var(--surface-2)}
+.trial-item .body{flex:1;min-width:0}
+.trial-item .body h4{margin:0 0 2px;font-size:16px;font-family:var(--sans);font-weight:600}
+.trial-item .body .sub{font-size:12.5px;color:var(--ink-3)}
+.trial-item .badge{font-size:11px;background:var(--green-soft);color:var(--green);padding:3px 8px;border-radius:10px;font-weight:600}
+.trial-item .badge.due{background:var(--amber-soft);color:var(--amber)}
 
-/* Buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:var(--tap);padding:0 18px;border-radius:var(--r-md);font-weight:600;font-size:15px;letter-spacing:-.005em;transition:transform .08s, box-shadow .15s, background .15s;cursor:pointer;text-align:center}
-.btn:active{transform:scale(.98)}
-.btn-primary{background:var(--green);color:var(--bg);box-shadow:var(--shadow-sm)}
-.btn-primary:hover{background:#184024}
-.btn-primary:disabled{background:var(--muted-2);color:var(--bg);cursor:not-allowed}
-.btn-secondary{background:var(--surface);color:var(--ink);border:1px solid var(--line-strong)}
-.btn-ghost{background:transparent;color:var(--ink-2)}
-.btn-ghost:hover{background:var(--bg-tint)}
-.btn-danger{background:var(--red-soft);color:#7A2222;border:1px solid #E5BCBC}
-.btn-full{width:100%}
-.btn-lg{min-height:56px;font-size:16px;border-radius:var(--r-lg)}
-.btn-row{display:flex;gap:8px;margin-top:12px}
-.btn-row > .btn{flex:1}
+/* ---- Bottom nav ---- */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 0 calc(6px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;z-index:20}
+.nav-item{flex:1;background:none;border:none;padding:8px 4px;color:var(--ink-3);font-size:10.5px;letter-spacing:0.03em;font-weight:600;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;min-height:52px}
+.nav-item .i{font-size:20px;line-height:1}
+.nav-item.active{color:var(--green)}
 
-/* Floating action */
-.fab{position:fixed;right:16px;bottom:calc(88px + var(--safe-bot));z-index:30;width:62px;height:62px;border-radius:50%;background:var(--green);color:var(--bg);box-shadow:0 8px 24px rgba(31,77,46,.35),0 0 0 4px rgba(31,77,46,.08);display:grid;place-items:center;transition:transform .12s}
-.fab:active{transform:scale(.94)}
-.fab svg{width:26px;height:26px;stroke:currentColor;stroke-width:2;fill:none}
+/* ---- FAB ---- */
+.fab{position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));right:16px;width:60px;height:60px;border-radius:50%;background:var(--green);color:#FFF;border:none;font-size:32px;box-shadow:0 4px 16px rgba(31,77,46,0.35);z-index:15;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:300}
 
-/* Bottom nav */
-.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:35;background:rgba(255,255,255,.92);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-top:1px solid var(--line);padding:6px 6px calc(6px + var(--safe-bot));display:grid;grid-template-columns:repeat(4,1fr);gap:2px}
-.navbtn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:var(--r-md);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.02em;transition:color .15s, background .15s;min-height:56px}
-.navbtn svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.8;fill:none}
-.navbtn.active{color:var(--green);background:var(--green-soft)}
-.navbtn:active{background:var(--bg-tint)}
+/* ---- Modal / sheet ---- */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:40;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.sheet-overlay.show{display:flex}
+.sheet{background:var(--bg);border-radius:var(--radius-lg) var(--radius-lg) 0 0;width:100%;max-width:680px;max-height:85vh;overflow-y:auto;padding:16px 16px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -4px 32px rgba(0,0,0,0.15)}
+.sheet-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sheet-title h3{margin:0}
+.sheet-close{background:none;border:none;font-size:24px;padding:0;color:var(--ink-3);min-height:32px}
 
-/* Forms & groups */
-.form-group{margin-bottom:14px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow-sm);margin-bottom:14px}
-.card h3{font-family:var(--serif);font-size:18px;margin:0 0 12px;font-weight:500}
-.kv{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
-.kv:last-child{border-bottom:0}
-.kv .k{color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
-.kv .v{font-family:var(--mono);font-size:13px;color:var(--ink-2);max-width:60%;text-align:right;overflow-wrap:anywhere}
+/* ---- Banner / toast ---- */
+.banner{padding:10px 14px;border-radius:var(--radius);margin-bottom:12px;font-size:14px;display:flex;align-items:center;gap:10px}
+.banner.info{background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue)}
+.banner.warn{background:var(--amber-soft);color:var(--amber);border:1px solid var(--amber)}
+.banner.error{background:var(--red-soft);color:var(--red);border:1px solid var(--red)}
+.banner.success{background:var(--green-soft);color:var(--green);border:1px solid var(--green)}
+.toast{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:var(--ink);color:#FFF;padding:10px 16px;border-radius:22px;font-size:14px;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,0.2);max-width:90%;text-align:center;opacity:0;transition:opacity 0.2s}
+.toast.show{opacity:1}
 
-/* Camera */
-.capture-stage{position:relative;background:#000;border-radius:var(--r-lg);overflow:hidden;aspect-ratio:3/4;width:100%;margin-bottom:14px}
-.capture-stage video, .capture-stage canvas, .capture-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.capture-overlay{position:absolute;inset:0;padding:12px;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.4)}
-.capture-overlay .co-top{display:flex;justify-content:space-between;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
-.capture-overlay .co-top span{background:rgba(0,0,0,.45);padding:4px 8px;border-radius:6px;backdrop-filter:blur(4px)}
-.capture-overlay .co-bottom{font-family:var(--mono);font-size:11px;opacity:.9}
-.shutter{width:74px;height:74px;border-radius:50%;background:var(--bg);border:5px solid var(--green);margin:12px auto 0;display:block;transition:transform .12s, border-color .15s}
-.shutter:active{transform:scale(.92);border-color:#184024}
-.shutter:disabled{border-color:var(--muted-2);background:var(--line)}
+/* ---- Plot map grid ---- */
+.plot-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;margin-top:8px}
+.plot-cell{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;cursor:pointer;min-height:52px}
+.plot-cell:active{background:var(--surface-2)}
+.plot-cell .p{font-weight:600;color:var(--green)}
+.plot-cell .t{font-size:12px;color:var(--ink-2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plot-cell.unassigned{border-style:dashed;background:var(--surface-2)}
+.plot-cell.unassigned .t{color:var(--ink-3);font-style:italic}
 
-/* Capture session header */
-.session-head{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm)}
-.session-head .sh-body{flex:1;min-width:0}
-.session-head .sh-eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
-.session-head .sh-title{font-family:var(--serif);font-size:18px;margin-top:2px;letter-spacing:-.01em;font-weight:500}
-.session-head .sh-chip{background:var(--green);color:var(--bg);padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+/* ---- Progress ---- */
+.progress-bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin:6px 0}
+.progress-bar .fill{height:100%;background:var(--green);transition:width 0.3s ease}
 
-/* Thumb strip */
-.thumb-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;margin-bottom:10px}
-.thumb-strip::-webkit-scrollbar{display:none}
-.thumb{flex:0 0 72px;width:72px;height:72px;border-radius:var(--r-sm);background:var(--bg-tint);position:relative;overflow:hidden;border:1px solid var(--line)}
-.thumb img{width:100%;height:100%;object-fit:cover}
-.thumb .thumb-badge{position:absolute;top:3px;right:3px;background:var(--amber);width:9px;height:9px;border-radius:50%;border:2px solid #fff}
-.thumb.synced .thumb-badge{background:var(--green-2)}
+/* ---- Utility ---- */
+.hide{display:none !important}
+.sep{height:1px;background:var(--line);margin:12px 0}
 
-/* Sync list */
-.sync-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.sync-item .si-thumb{width:44px;height:44px;border-radius:var(--r-sm);background:var(--bg-tint);overflow:hidden;flex:0 0 44px}
-.sync-item .si-thumb img{width:100%;height:100%;object-fit:cover}
-.sync-item .si-body{flex:1;min-width:0}
-.sync-item .si-title{font-size:13px;font-weight:600;color:var(--ink)}
-.sync-item .si-meta{font-size:11.5px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
-.sync-item .si-status{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:3px 8px;border-radius:999px}
-.sync-item .si-status.pending{background:var(--amber-soft);color:#6B4116}
-.sync-item .si-status.uploading{background:var(--blue-soft);color:#1D4468}
-.sync-item .si-status.done{background:var(--green-soft);color:#1F4D2E}
-.sync-item .si-status.err{background:var(--red-soft);color:#7A2222}
-
-/* Auth screen */
-.auth-screen{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;text-align:center}
-.auth-screen .brand{width:64px;height:64px;border-radius:16px;background:var(--green);margin:0 auto 18px;display:grid;place-items:center;color:var(--bg);box-shadow:0 10px 30px rgba(31,77,46,.25)}
-.auth-screen .brand svg{width:32px;height:32px;stroke:currentColor;stroke-width:1.8;fill:none}
-.auth-screen h1{font-family:var(--serif);font-size:38px;line-height:1.05;margin:0 0 6px;letter-spacing:-.02em;font-weight:500}
-.auth-screen .sub{color:var(--muted);font-size:15px;margin:0 auto 28px;max-width:320px;line-height:1.5}
-.auth-feature{display:flex;gap:12px;align-items:flex-start;text-align:left;padding:10px 4px;font-size:13.5px;color:var(--ink-2)}
-.auth-feature .af-icon{width:28px;height:28px;border-radius:8px;background:var(--green-soft);color:var(--green);display:grid;place-items:center;flex:0 0 28px}
-.auth-feature .af-icon svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
-.auth-feature b{display:block;color:var(--ink);margin-bottom:1px}
-.auth-features{max-width:360px;margin:0 auto 28px;display:flex;flex-direction:column;gap:4px}
-
-/* Toast */
-.toast-stack{position:fixed;left:16px;right:16px;bottom:calc(96px + var(--safe-bot));z-index:90;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast{background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:var(--r-md);box-shadow:var(--shadow-lg);font-size:14px;font-weight:500;pointer-events:auto;animation:toastIn .22s ease-out;display:flex;gap:10px;align-items:center}
-.toast.success{background:var(--green)}
-.toast.error{background:var(--red)}
-.toast.warn{background:var(--amber);color:#2a1a00}
-@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-
-/* Loading */
-.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-.spinner.dark{border-color:rgba(31,77,46,.2);border-top-color:var(--green)}
+/* ---- Loading ---- */
+.spinner{width:20px;height:20px;border:2.5px solid var(--line);border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;display:inline-block;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.overlay{position:fixed;inset:0;background:rgba(26,24,20,.45);backdrop-filter:blur(3px);display:none;z-index:100;align-items:center;justify-content:center;padding:20px}
-.overlay.show{display:flex}
-.overlay-card{background:var(--surface);border-radius:var(--r-lg);padding:22px;max-width:420px;width:100%;box-shadow:var(--shadow-lg);animation:fadeIn .18s}
-.overlay-card h2{font-family:var(--serif);font-size:22px;margin:0 0 8px;letter-spacing:-.01em;font-weight:500}
-.overlay-card p{color:var(--muted);font-size:14px;margin:0 0 14px;line-height:1.5}
+/* ---- Pull-to-refresh indicator ---- */
+.sync-indicator{font-size:12px;color:var(--ink-3);display:flex;align-items:center;gap:6px;justify-content:center;padding:6px 0}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--ink-3)}
+.sync-dot.live{background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:0.3}}
 
-/* Chip picker */
-.chip-row{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:8px 14px;border-radius:999px;background:var(--bg-tint);border:1px solid transparent;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:all .15s;min-height:36px}
-.chip:active{transform:scale(.96)}
-.chip.active{background:var(--green);color:var(--bg);border-color:var(--green)}
-
-/* Tablet / desktop */
-@media (min-width: 720px){
-  .scroll{max-width:720px;margin:0 auto;width:100%}
-  .stat-grid{grid-template-columns:repeat(4,1fr)}
-  .auth-screen{max-width:520px;margin:0 auto}
-}
+/* ---- Auth / splash ---- */
+.splash{min-height:80vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}
+.splash .logo{width:80px;height:80px;background:var(--green);border-radius:18px;margin-bottom:20px;display:flex;align-items:center;justify-content:center}
+.splash .logo svg{width:50px;height:50px;fill:var(--bg)}
+.splash h1{font-size:32px;margin-bottom:8px}
+.splash .tag{color:var(--ink-2);margin-bottom:28px;max-width:340px}
 </style>
 </head>
 <body>
 
-<!-- ====================== APP ====================== -->
-<div id="app">
+<!-- Toasts -->
+<div id="toast" class="toast"></div>
 
-  <!-- AUTH VIEW -->
-  <section class="view active" data-view="auth">
-    <div class="auth-screen">
-      <div class="brand">
-        <svg viewBox="0 0 24 24"><path d="M4 18c4-8 12-8 16 0"/><circle cx="12" cy="10" r="2"/><path d="M12 4v2M6 6l1 1M18 6l-1 1"/></svg>
+<!-- Sheet overlay (modal container) -->
+<div id="sheet" class="sheet-overlay" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheetContent"></div>
+</div>
+
+<div class="app">
+
+  <!-- AUTH -->
+  <div id="v_auth" class="view active">
+    <div class="splash">
+      <div class="logo">
+        <svg viewBox="0 0 100 100"><path d="M25 70 Q 50 30 75 70" stroke="currentColor" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="50" cy="45" r="4"/></svg>
       </div>
       <h1>FieldTrack</h1>
-      <p class="sub">A season-long field companion for weed science trials — capture, organize, and sync plot data straight from the phone in your pocket.</p>
-
-      <div class="auth-features">
-        <div class="auth-feature">
-          <div class="af-icon"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 12l9 4 9-4M3 17l9 4 9-4"/></svg></div>
-          <div><b>Organized automatically</b>Photos routed by sponsor, trial, and rep — no manual sorting.</div>
-        </div>
-        <div class="auth-feature">
-          <div class="af-icon"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></div>
-          <div><b>Offline-first</b>Capture without signal. Auto-syncs when Wi-Fi is available.</div>
-        </div>
-        <div class="auth-feature">
-          <div class="af-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></div>
-          <div><b>Season-long sign-in</b>Connect your Drive once — it stays connected.</div>
-        </div>
-      </div>
-
-      <button class="btn btn-primary btn-lg btn-full" id="btn-connect">
-        <svg width="18" height="18" viewBox="0 0 48 48" style="flex:none"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.8 32.2 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.4 2.8l5.7-5.7C33.5 7 28.9 5 24 5 13.5 5 5 13.5 5 24s8.5 19 19 19 19-8.5 19-19c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c2.8 0 5.4 1.1 7.4 2.8l5.7-5.7C33.5 6 28.9 4 24 4c-7 0-13.1 3.8-16.7 9.7z"/><path fill="#4CAF50" d="M24 44c5 0 9.5-1.9 12.9-5l-6-5.1C28.9 35.6 26.6 36 24 36c-5.3 0-9.8-2.8-11.3-7l-6.5 5C9.9 40.2 16.4 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.4 4.3-4.4 5.7l6 5.1C40.6 35.9 44 30.5 44 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
-        Connect Google Drive
-      </button>
-      <p style="font-size:12px;color:var(--muted);margin:14px 0 0">You&rsquo;ll be redirected to Google to authorize access. FieldTrack only uses your Drive to write trial photos and metadata.</p>
+      <p class="tag">Field trial photo capture with automatic Drive routing, cross-device sync, and offline resilience.</p>
+      <button class="btn btn-primary btn-big" onclick="Auth.signIn()" id="signinBtn">Connect Google Drive</button>
+      <p class="small muted" style="margin-top:18px;max-width:300px">Sign in once with your Google account. Your trials and photos sync across every device you use.</p>
     </div>
-  </section>
+  </div>
 
   <!-- DASHBOARD -->
-  <section class="view" data-view="dashboard">
+  <div id="v_dashboard" class="view">
     <div class="topbar">
-      <div class="topbar-title"><span class="brand-mark">FT</span>Dashboard</div>
-      <div class="topbar-actions">
-        <button class="icon-btn" id="btn-refresh" aria-label="Refresh"><svg viewBox="0 0 24 24"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 10A8 8 0 004.7 7.5M4 14a8 8 0 0015.3 2.5"/></svg></button>
+      <div style="flex:1">
+        <div class="subtitle">FieldTrack</div>
+        <h1>Dashboard</h1>
       </div>
+      <div class="sync-indicator" id="syncStatus"><span class="sync-dot"></span><span id="syncStatusText">Idle</span></div>
     </div>
-    <div class="status-strip" id="status-strip"></div>
-    <div class="scroll">
-      <div class="hero">
-        <div class="hero-date" id="today-date">—</div>
-        <div class="h-display" id="greeting">Good morning.</div>
-        <div class="hero-weather" id="hero-weather">
-          <div class="temp" id="hw-temp">—</div>
-          <div class="meta" id="hw-meta">Checking conditions…</div>
-        </div>
-      </div>
-
-      <div class="stat-grid" id="stat-grid">
-        <button class="stat" data-stat="trials"><div class="stat-label">Active Trials</div><div class="stat-value"><span id="stat-trials">0</span></div><div class="stat-hint" id="stat-trials-hint">No trials yet</div></button>
-        <button class="stat" data-stat="today"><div class="stat-label">Today</div><div class="stat-value"><span id="stat-today">0</span><span class="stat-unit">photos</span></div><div class="stat-hint" id="stat-today-hint">No captures yet</div></button>
-        <button class="stat warn" data-stat="pending" id="stat-pending-wrap"><div class="stat-label">Pending Sync</div><div class="stat-value"><span id="stat-pending">0</span><span class="stat-unit">items</span></div><div class="stat-hint" id="stat-pending-hint">All synced</div></button>
-        <button class="stat accent" data-stat="drive" id="stat-drive-wrap"><div class="stat-label">Drive</div><div class="stat-value" id="stat-drive">—</div><div class="stat-hint" id="stat-drive-hint">—</div></button>
-      </div>
-
-      <div class="h-section">Active Trials <span class="h-meta" id="trials-count">0</span></div>
-      <div class="trial-list" id="dash-trial-list"></div>
+    <div id="dashboardBanners"></div>
+    <div class="stat-grid">
+      <div class="stat"><div class="n" id="statTrials">0</div><div class="l">Active trials</div></div>
+      <div class="stat pending"><div class="n" id="statPending">0</div><div class="l">Pending sync</div></div>
+      <div class="stat due"><div class="n" id="statDue">0</div><div class="l">Eval due</div></div>
     </div>
-    <button class="fab" id="btn-fab-capture" aria-label="Quick capture">
-      <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M9 6l1.5-2h3L15 6"/></svg>
-    </button>
-  </section>
+    <div style="height:14px"></div>
+    <h3 style="margin-bottom:10px">Upcoming evaluations</h3>
+    <div id="upcomingEvals"></div>
+    <div style="height:18px"></div>
+    <h3 style="margin-bottom:10px">Recent trials</h3>
+    <div id="recentTrials"></div>
+  </div>
 
-  <!-- TRIALS -->
-  <section class="view" data-view="trials">
+  <!-- TRIALS LIST -->
+  <div id="v_trials" class="view">
     <div class="topbar">
-      <div class="topbar-title"><span class="brand-mark">FT</span>Trials</div>
-      <div class="topbar-actions">
-        <button class="icon-btn" id="btn-new-trial" aria-label="New trial"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+      <div style="flex:1">
+        <div class="subtitle">Trials</div>
+        <h1>All trials</h1>
       </div>
+      <button class="btn btn-ghost" onclick="UI.newTrial()">+ New</button>
     </div>
-    <div class="scroll">
-      <div class="trial-list" id="all-trial-list"></div>
-    </div>
-  </section>
+    <div id="trialsList"></div>
+  </div>
 
-  <!-- CAPTURE -->
-  <section class="view" data-view="capture">
+  <!-- TRIAL DETAIL -->
+  <div id="v_trial" class="view">
     <div class="topbar">
-      <button class="icon-btn" id="cap-back" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-      <div class="topbar-title"><span id="cap-title">Capture</span></div>
-      <div class="topbar-actions">
-        <button class="icon-btn" id="cap-flip" aria-label="Flip camera"><svg viewBox="0 0 24 24"><path d="M15 4l2 3h3a2 2 0 012 2v9a2 2 0 01-2 2h-7"/><path d="M9 20l-2-3H4a2 2 0 01-2-2V6a2 2 0 012-2h7"/><path d="M9 9l3-3 3 3M9 15l3 3 3-3"/></svg></button>
+      <button class="back-btn" onclick="UI.go('trials')">‹</button>
+      <div style="flex:1">
+        <div class="subtitle" id="trialDetailSub"></div>
+        <h1 id="trialDetailName">Trial</h1>
+      </div>
+      <button class="btn btn-ghost" onclick="UI.editTrial()">Edit</button>
+    </div>
+    <div id="trialDetailBody"></div>
+  </div>
+
+  <!-- CAPTURE: rep + timing selection -->
+  <div id="v_capture_setup" class="view">
+    <div class="topbar">
+      <button class="back-btn" onclick="UI.go('trial')">‹</button>
+      <div style="flex:1">
+        <div class="subtitle">Capture</div>
+        <h1 id="captureSetupName">Start session</h1>
       </div>
     </div>
-    <div class="scroll">
-      <div class="session-head">
-        <div class="sh-body">
-          <div class="sh-eyebrow" id="cap-sponsor">—</div>
-          <div class="sh-title" id="cap-trial">—</div>
-        </div>
-        <div class="sh-chip" id="cap-folder">Rep 1</div>
+    <div id="captureSetupBody"></div>
+  </div>
+
+  <!-- CAPTURE: rapid-fire plot loop -->
+  <div id="v_capture" class="view">
+    <div class="topbar">
+      <button class="back-btn" onclick="UI.confirmExitCapture()">‹</button>
+      <div style="flex:1">
+        <div class="subtitle" id="captureSub"></div>
+        <h1 id="captureTitle">Capture</h1>
       </div>
-
-      <div class="capture-stage" id="capture-stage">
-        <video id="cam-video" autoplay playsinline muted></video>
-        <canvas id="cam-canvas" style="display:none"></canvas>
-        <div class="capture-overlay">
-          <div class="co-top">
-            <span id="co-session">—</span>
-            <span id="co-count">0 captured</span>
-          </div>
-          <div class="co-bottom" id="co-gps">📍 Awaiting GPS…</div>
-        </div>
-      </div>
-
-      <button class="shutter" id="btn-shutter" aria-label="Take photo"></button>
-
-      <div class="thumb-strip" id="thumb-strip"></div>
-
-      <div class="card">
-        <h3>Photo Metadata</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Plot #</label>
-            <input type="text" id="meta-plot" placeholder="e.g., 101" inputmode="numeric">
-          </div>
-          <div class="form-group">
-            <label>Treatment</label>
-            <input type="text" id="meta-treatment" placeholder="e.g., Dicamba 1X">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Herbicide applied</label>
-          <input type="text" id="meta-herbicide" placeholder="Product + rate (optional)">
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea id="meta-notes" rows="2" placeholder="Observations, injury %, weed density…"></textarea>
-        </div>
-        <p style="font-size:11.5px;color:var(--muted);margin:0">These values stay until you clear them — handy for rep-by-rep runs with the same treatment list.</p>
-      </div>
-
-      <button class="btn btn-secondary btn-full" id="btn-end-session">Finish this rep</button>
+      <button class="btn btn-ghost" onclick="Capture.endSession()">End</button>
     </div>
-  </section>
+    <div id="captureBody"></div>
+  </div>
 
   <!-- SYNC -->
-  <section class="view" data-view="sync">
+  <div id="v_sync" class="view">
     <div class="topbar">
-      <div class="topbar-title"><span class="brand-mark">FT</span>Sync</div>
-      <div class="topbar-actions">
-        <button class="icon-btn" id="btn-force-sync" aria-label="Sync now"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-3-6.7M21 4v5h-5"/></svg></button>
+      <div style="flex:1">
+        <div class="subtitle">Upload Queue</div>
+        <h1>Sync</h1>
       </div>
+      <button class="btn btn-ghost" onclick="Sync.runNow()">Sync now</button>
     </div>
-    <div class="status-strip" id="sync-status-strip"></div>
-    <div class="scroll">
-      <div class="h-section">Queue <span class="h-meta" id="queue-count">0 pending</span></div>
-      <div id="sync-list"></div>
-      <div class="h-section">Recently synced</div>
-      <div id="done-list"></div>
-    </div>
-  </section>
+    <div id="syncBody"></div>
+  </div>
 
   <!-- SETTINGS -->
-  <section class="view" data-view="settings">
+  <div id="v_settings" class="view">
     <div class="topbar">
-      <div class="topbar-title"><span class="brand-mark">FT</span>Settings</div>
-    </div>
-    <div class="scroll">
-      <div class="card">
-        <h3>Account</h3>
-        <div class="kv"><span class="k">Google Account</span><span class="v" id="set-account">—</span></div>
-        <div class="kv"><span class="k">Token expires</span><span class="v" id="set-token-exp">—</span></div>
-        <div class="kv"><span class="k">Auto-refresh</span><span class="v">Every 50 min</span></div>
-        <div class="btn-row">
-          <button class="btn btn-secondary btn-full" id="btn-refresh-token">Refresh now</button>
-          <button class="btn btn-danger btn-full" id="btn-signout">Sign out</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Sync</h3>
-        <div class="kv"><span class="k">Wi-Fi only upload</span>
-          <span class="v"><label style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" id="set-wifi-only" style="width:auto;min-height:auto;margin:0"> Enabled</label></span>
-        </div>
-        <div class="kv"><span class="k">Auto-sync</span>
-          <span class="v"><label style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" id="set-autosync" style="width:auto;min-height:auto;margin:0" checked> Enabled</label></span>
-        </div>
-        <div class="kv"><span class="k">Storage used</span><span class="v" id="set-storage">—</span></div>
-        <div class="kv"><span class="k">Persistent storage</span><span class="v" id="set-persist">—</span></div>
-      </div>
-
-      <div class="card">
-        <h3>Drive structure</h3>
-        <p style="font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 10px">Images land here; metadata CSVs are kept separately for clean exports.</p>
-        <div style="font-family:var(--mono);font-size:12px;background:var(--bg-tint);padding:12px;border-radius:var(--r-sm);line-height:1.7;color:var(--ink-2)">
-FieldTrack/<br>
-&nbsp;&nbsp;├─ Bayer/<br>
-&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└─ Soybean_2026/<br>
-&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ 21DAA_Rep1/&nbsp;&nbsp;<span style="color:var(--muted)">← images</span><br>
-&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ 28DAA_Rep1/<br>
-&nbsp;&nbsp;└─ _Metadata/<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Bayer/<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ Soybean_2026_metadata.csv
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>About</h3>
-        <div class="kv"><span class="k">Version</span><span class="v">FieldTrack 2.0</span></div>
-        <div class="kv"><span class="k">Build</span><span class="v" id="set-build">—</span></div>
+      <div style="flex:1">
+        <div class="subtitle">Configuration</div>
+        <h1>Settings</h1>
       </div>
     </div>
-  </section>
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottomnav" id="bottomnav" style="display:none">
-    <button class="navbtn active" data-nav="dashboard"><svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
-    <button class="navbtn" data-nav="trials"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="7" height="14" rx="1"/><rect x="14" y="5" width="7" height="9" rx="1"/><path d="M14 18h7"/></svg>Trials</button>
-    <button class="navbtn" data-nav="sync"><svg viewBox="0 0 24 24"><path d="M4 4v6h6M20 20v-6h-6"/><path d="M20 10A8 8 0 004.7 7.5M4 14a8 8 0 0015.3 2.5"/></svg>Sync</button>
-    <button class="navbtn" data-nav="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3h.1a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8v.1a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>Settings</button>
-  </nav>
+    <div id="settingsBody"></div>
+  </div>
 
 </div>
 
-<!-- Toasts + overlays -->
-<div class="toast-stack" id="toasts"></div>
-<div class="overlay" id="overlay"><div class="overlay-card" id="overlay-content"></div></div>
+<!-- Bottom nav -->
+<nav class="bottom-nav" id="bottomNav" style="display:none">
+  <button class="nav-item active" data-view="dashboard" onclick="UI.go('dashboard')"><span class="i">⌂</span>Home</button>
+  <button class="nav-item" data-view="trials" onclick="UI.go('trials')"><span class="i">▦</span>Trials</button>
+  <button class="nav-item" data-view="sync" onclick="UI.go('sync')"><span class="i">↻</span>Sync</button>
+  <button class="nav-item" data-view="settings" onclick="UI.go('settings')"><span class="i">⚙</span>Settings</button>
+</nav>
+
+<!-- FAB -->
+<button class="fab" id="fab" onclick="UI.fabAction()" style="display:none">+</button>
+
+<!-- Hidden file input for native camera capture -->
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
 
 <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
-<!-- Main app script placeholder; injected in next step -->
-<script id="main-app-script">
-/* ==============================================================
-   FIELDTRACK v2.0 — Field Trial Photo Management
-   Single-file web app, mobile-first, offline-capable
-   ============================================================== */
-(function(){
-'use strict';
+<!-- App core: the main script is injected here at bundle time -->
+<script>
+/* =========================================================================
+   FieldTrack v3.0
+   Single-file progressive web app for agricultural field trial photo capture.
+   Pure frontend: OAuth via Google Identity Services + Drive API v3 REST.
+   ========================================================================= */
 
-/* --------------------------------------------------------------
-   CONFIG
-   IMPORTANT: Replace CLIENT_ID with your Google Cloud OAuth Client ID.
-   The existing ankit8474.github.io/fieldtrac client ID should continue
-   to work — just paste it here.
--------------------------------------------------------------- */
 const CONFIG = {
+  // ⚠️ Paste your Google OAuth 2.0 Web Client ID here before deploying.
   CLIENT_ID: '428431601315-59jrvjre7r55lgiq9vapk0d320khdr4c.apps.googleusercontent.com',
   SCOPES: 'https://www.googleapis.com/auth/drive.file',
   ROOT_FOLDER: 'FieldTrack',
-  META_FOLDER: '_Metadata',
-  DRIVE_API: 'https://www.googleapis.com/drive/v3',
-  DRIVE_UPLOAD: 'https://www.googleapis.com/upload/drive/v3',
-  USERINFO: 'https://www.googleapis.com/oauth2/v3/userinfo',
-  TOKEN_REFRESH_MS: 50 * 60 * 1000, // 50 minutes
-  BUILD: '2026.04.21-1'
+  CONFIG_FOLDER: '_Config',
+  MANIFEST_FILE: 'manifest.json',
+  METADATA_FOLDER: '_Metadata',
+  TOKEN_REFRESH_MS: 50 * 60 * 1000,   // silent refresh every 50 min
+  MANIFEST_POLL_MS: 30 * 1000,         // poll remote manifest every 30s
+  SYNC_RETRY_MS: 120 * 1000,           // photo upload retry every 2 min
+  BLOB_RETENTION_DAYS: 3,              // keep local blob this long after sync
+  SCHEMA_VERSION: 3,
 };
 
-/* --------------------------------------------------------------
-   TINY HELPERS
--------------------------------------------------------------- */
-const $ = (s, el=document) => el.querySelector(s);
-const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,8);
-const fmt = (n, digits=0) => Number(n).toLocaleString(undefined,{maximumFractionDigits:digits});
-const safe = (s) => String(s||'').replace(/[\\/:*?"<>|\n\r]/g,'_').replace(/\s+/g,'_').slice(0,80);
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-const STATE = {
-  user: null,
-  token: null,
-  tokenExp: 0,
-  online: navigator.onLine,
-  wifi: null,          // true/false/null(unknown)
-  rootFolderId: null,
-  metaRootFolderId: null,
-  activeTrial: null,   // { id, sponsor, name, crop, reps, timings, ... }
-  activeRep: null,
-  activeTiming: null,
-  session: [],         // photos captured this session
-  cameraStream: null,
-  cameraFacing: 'environment',
-  position: null,
-  weather: null,
-  syncing: false,
-  tokenClient: null,
-};
-
-const DEFAULT_SETTINGS = {
-  wifiOnly: false,     // default off so iOS users aren't stuck
-  autoSync: true,
-};
-
-/* --------------------------------------------------------------
-   TOAST / OVERLAY
--------------------------------------------------------------- */
-function toast(msg, kind='') {
-  const host = $('#toasts');
-  const t = document.createElement('div');
-  t.className = 'toast ' + kind;
-  t.textContent = msg;
-  host.appendChild(t);
-  setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(4px)'; setTimeout(() => t.remove(), 220); }, 3000);
-}
-
-function overlay(html) {
-  $('#overlay-content').innerHTML = html;
-  $('#overlay').classList.add('show');
-}
-function overlayClose() { $('#overlay').classList.remove('show'); }
-$('#overlay').addEventListener('click', (e) => { if (e.target.id === 'overlay') overlayClose(); });
-
-/* --------------------------------------------------------------
-   INDEXEDDB WRAPPER
-   Stores:
-     photos       — captured photo blobs + metadata + status
-     trials       — user's trials
-     folders      — Drive folder path → folderId cache
-     files        — metadata-file IDs (trial CSVs)
-     settings     — app settings + auth tokens
--------------------------------------------------------------- */
-const DB_NAME = 'fieldtrack';
-const DB_VERSION = 1;
-let DB;
-
-function openDB() {
-  return new Promise((res, rej) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains('photos')) {
-        const s = db.createObjectStore('photos', { keyPath: 'id' });
-        s.createIndex('status', 'status');
-        s.createIndex('trialId', 'trialId');
-        s.createIndex('capturedAt', 'capturedAt');
-      }
-      if (!db.objectStoreNames.contains('trials')) {
-        db.createObjectStore('trials', { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains('folders')) {
-        db.createObjectStore('folders', { keyPath: 'key' });
-      }
-      if (!db.objectStoreNames.contains('files')) {
-        db.createObjectStore('files', { keyPath: 'key' });
-      }
-      if (!db.objectStoreNames.contains('settings')) {
-        db.createObjectStore('settings', { keyPath: 'key' });
-      }
-    };
-    req.onsuccess = () => { DB = req.result; res(DB); };
-    req.onerror = () => rej(req.error);
-  });
-}
-
-function tx(stores, mode='readonly') {
-  const t = DB.transaction(stores, mode);
-  const out = { t };
-  (Array.isArray(stores) ? stores : [stores]).forEach(n => out[n] = t.objectStore(n));
-  return out;
-}
-function req2promise(r){ return new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}); }
-
-const IDB = {
-  async get(store, key)       { return req2promise(tx(store).t.objectStore(store).get(key)); },
-  async put(store, value)     { const t = tx(store,'readwrite'); t[store].put(value); return new Promise((res,rej)=>{t.t.oncomplete=()=>res(value);t.t.onerror=()=>rej(t.t.error);}); },
-  async del(store, key)       { const t = tx(store,'readwrite'); t[store].delete(key); return new Promise((res,rej)=>{t.t.oncomplete=()=>res();t.t.onerror=()=>rej(t.t.error);}); },
-  async all(store)            { return req2promise(tx(store).t.objectStore(store).getAll()); },
-  async where(store, idx, val){ return req2promise(tx(store).t.objectStore(store).index(idx).getAll(val)); },
-  async count(store)          { return req2promise(tx(store).t.objectStore(store).count()); },
-  async setting(key, val)     { if (val === undefined) { const r = await IDB.get('settings', key); return r ? r.value : undefined; } return IDB.put('settings', { key, value: val }); },
-};
-
-/* --------------------------------------------------------------
-   NETWORK STATUS
--------------------------------------------------------------- */
-function detectNetwork() {
-  STATE.online = navigator.onLine;
-  const c = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-  if (c && typeof c.type === 'string') {
-    STATE.wifi = c.type === 'wifi' || c.type === 'ethernet' || c.type === 'unknown';
-    // 'unknown' means the API can't tell — treat as wifi to allow upload
-  } else if (c && c.effectiveType) {
-    // Fallback: treat 4g as OK, but Wi-Fi detection is not reliable here
-    STATE.wifi = null; // unknown
-  } else {
-    STATE.wifi = null;
+/* ---------- tiny utilities ---------- */
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+const h = (tag, attrs = {}, ...children) => {
+  const el = document.createElement(tag);
+  for (const k in attrs) {
+    if (k === 'class') el.className = attrs[k];
+    else if (k === 'style' && typeof attrs[k] === 'object') Object.assign(el.style, attrs[k]);
+    else if (k.startsWith('on') && typeof attrs[k] === 'function') el.addEventListener(k.slice(2).toLowerCase(), attrs[k]);
+    else if (attrs[k] !== null && attrs[k] !== undefined && attrs[k] !== false) el.setAttribute(k, attrs[k]);
   }
+  for (const c of children.flat()) {
+    if (c == null || c === false) continue;
+    el.append(c.nodeType ? c : document.createTextNode(String(c)));
+  }
+  return el;
+};
+const uid = () => 't_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+const nowISO = () => new Date().toISOString();
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const daysBetween = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
+const addDays = (iso, n) => { const d = new Date(iso); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+const fmtDate = iso => iso ? new Date(iso + (iso.length === 10 ? 'T00:00' : '')).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+const fmtRelDate = iso => {
+  if (!iso) return '';
+  const d = daysBetween(todayISO(), iso);
+  if (d === 0) return 'Today';
+  if (d === 1) return 'Tomorrow';
+  if (d === -1) return 'Yesterday';
+  if (d > 1 && d <= 14) return `In ${d} days`;
+  if (d < -1 && d >= -14) return `${-d} days ago`;
+  return fmtDate(iso);
+};
+const escapeCSV = v => {
+  if (v == null) return '';
+  const s = String(v);
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+};
+const sanitizePath = s => String(s || '').replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, ' ').trim();
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function toast(msg, kind = 'info') {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.style.background = kind === 'error' ? '#A83232' : kind === 'success' ? '#1F4D2E' : '#1A1A1A';
+  t.classList.add('show');
+  clearTimeout(toast._to);
+  toast._to = setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-window.addEventListener('online',  () => { detectNetwork(); renderStatusStrip(); onMaybeSync(); });
-window.addEventListener('offline', () => { detectNetwork(); renderStatusStrip(); });
-const connInfo = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-if (connInfo && typeof connInfo.addEventListener === 'function') {
-  connInfo.addEventListener('change', () => { detectNetwork(); renderStatusStrip(); onMaybeSync(); });
-}
+/* ---------- IndexedDB wrapper ---------- */
+const IDB = (() => {
+  const DB_NAME = 'fieldtrack_v3';
+  const STORES = ['settings', 'manifest', 'photos', 'folder_cache', 'log'];
+  let _db;
+  function open() {
+    if (_db) return Promise.resolve(_db);
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        for (const s of STORES) if (!db.objectStoreNames.contains(s)) db.createObjectStore(s, { keyPath: 'key' });
+      };
+      req.onsuccess = () => { _db = req.result; resolve(_db); };
+      req.onerror = () => reject(req.error);
+    });
+  }
+  async function get(store, key) {
+    const db = await open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, 'readonly');
+      const req = tx.objectStore(store).get(key);
+      req.onsuccess = () => resolve(req.result ? req.result.value : null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+  async function set(store, key, value) {
+    const db = await open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, 'readwrite');
+      tx.objectStore(store).put({ key, value });
+      tx.oncomplete = () => resolve(value);
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  async function del(store, key) {
+    const db = await open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, 'readwrite');
+      tx.objectStore(store).delete(key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  async function all(store) {
+    const db = await open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, 'readonly');
+      const items = [];
+      tx.objectStore(store).openCursor().onsuccess = e => {
+        const cur = e.target.result;
+        if (cur) { items.push(cur.value.value); cur.continue(); }
+        else resolve(items);
+      };
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  async function clearStore(store) {
+    const db = await open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(store, 'readwrite');
+      tx.objectStore(store).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+  return { open, get, set, del, all, clearStore };
+})();
 
-/* --------------------------------------------------------------
-   GPS & WEATHER
--------------------------------------------------------------- */
-function getPosition(timeoutMs=8000) {
-  return new Promise((res) => {
-    if (!navigator.geolocation) return res(null);
-    const t = setTimeout(() => res(null), timeoutMs);
+/* ---------- Auth module: persistent login via GIS + silent refresh ---------- */
+const Auth = (() => {
+  let tokenClient = null;
+  let currentToken = null;   // { access_token, expires_at, email }
+  let refreshTimer = null;
+  const listeners = [];
+
+  function onChange(fn) { listeners.push(fn); }
+  function emit() { listeners.forEach(fn => { try { fn(currentToken); } catch (e) { console.error(e); } }); }
+
+  async function init() {
+    // Restore from IDB first — this is the critical "remember across sessions" step.
+    const saved = await IDB.get('settings', 'auth_token');
+    if (saved && saved.expires_at > Date.now() + 60000) {
+      currentToken = saved;
+      scheduleRefresh();
+    }
+
+    // Wait for GIS to load
+    await waitForGIS();
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CONFIG.CLIENT_ID,
+      scope: CONFIG.SCOPES,
+      callback: async resp => {
+        if (resp.error) { console.error('OAuth error:', resp); toast('Sign-in failed: ' + resp.error, 'error'); return; }
+        currentToken = {
+          access_token: resp.access_token,
+          expires_at: Date.now() + (resp.expires_in * 1000),
+          email: currentToken?.email || null,
+        };
+        await IDB.set('settings', 'auth_token', currentToken);
+        await fetchUserEmail();
+        scheduleRefresh();
+        emit();
+      },
+    });
+
+    // If we have a live token, validate it and emit
+    if (currentToken) {
+      const ok = await validateToken();
+      if (ok) emit();
+      else await refreshSilent();
+    }
+  }
+
+  function waitForGIS() {
+    return new Promise(resolve => {
+      if (window.google?.accounts?.oauth2) return resolve();
+      const iv = setInterval(() => {
+        if (window.google?.accounts?.oauth2) { clearInterval(iv); resolve(); }
+      }, 80);
+    });
+  }
+
+  async function validateToken() {
+    if (!currentToken?.access_token) return false;
+    if (currentToken.expires_at < Date.now() + 60000) return false;
+    return true;
+  }
+
+  function signIn() {
+    if (!tokenClient) { toast('Auth not ready, try again', 'error'); return; }
+    tokenClient.requestAccessToken({ prompt: 'consent' });
+  }
+
+  function refreshSilent() {
+    if (!tokenClient) return;
+    try { tokenClient.requestAccessToken({ prompt: '' }); } catch (e) { console.warn('silent refresh failed', e); }
+  }
+
+  function scheduleRefresh() {
+    clearTimeout(refreshTimer);
+    if (!currentToken) return;
+    const msUntilRefresh = Math.max(60000, currentToken.expires_at - Date.now() - 5 * 60 * 1000);
+    refreshTimer = setTimeout(refreshSilent, Math.min(msUntilRefresh, CONFIG.TOKEN_REFRESH_MS));
+  }
+
+  async function fetchUserEmail() {
+    try {
+      const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: 'Bearer ' + currentToken.access_token },
+      });
+      if (r.ok) {
+        const info = await r.json();
+        currentToken.email = info.email;
+        await IDB.set('settings', 'auth_token', currentToken);
+      }
+    } catch (e) { /* soft fail */ }
+  }
+
+  async function signOut() {
+    if (currentToken?.access_token) {
+      try { await fetch('https://oauth2.googleapis.com/revoke?token=' + currentToken.access_token, { method: 'POST' }); } catch (_) {}
+    }
+    currentToken = null;
+    await IDB.del('settings', 'auth_token');
+    clearTimeout(refreshTimer);
+    emit();
+    location.reload();
+  }
+
+  return {
+    init, signIn, signOut, refreshSilent, onChange,
+    get token() { return currentToken; },
+    get isSignedIn() { return !!currentToken && currentToken.expires_at > Date.now() + 60000; },
+    get email() { return currentToken?.email; },
+  };
+})();
+
+/* ---------- Drive API module ---------- */
+const Drive = (() => {
+  const API = 'https://www.googleapis.com/drive/v3';
+  const UPLOAD_API = 'https://www.googleapis.com/upload/drive/v3';
+  const folderCache = new Map();  // path -> fileId (in-memory, persisted)
+
+  async function restoreCache() {
+    const saved = await IDB.get('folder_cache', 'cache');
+    if (saved) for (const [k, v] of Object.entries(saved)) folderCache.set(k, v);
+  }
+  async function persistCache() {
+    const obj = {};
+    for (const [k, v] of folderCache) obj[k] = v;
+    await IDB.set('folder_cache', 'cache', obj);
+  }
+  function clearCache() { folderCache.clear(); IDB.del('folder_cache', 'cache'); }
+
+  async function req(method, url, { body, headers, retryOn401 = true } = {}) {
+    if (!Auth.isSignedIn) {
+      Auth.refreshSilent();
+      await sleep(1500);
+      if (!Auth.isSignedIn) throw new Error('Not authenticated');
+    }
+    const h = { Authorization: 'Bearer ' + Auth.token.access_token, ...(headers || {}) };
+    const r = await fetch(url, { method, headers: h, body });
+    if (r.status === 401 && retryOn401) {
+      Auth.refreshSilent();
+      await sleep(1800);
+      return req(method, url, { body, headers, retryOn401: false });
+    }
+    if (r.status === 404) { const err = new Error('404'); err.status = 404; throw err; }
+    if (!r.ok) {
+      const text = await r.text().catch(() => '');
+      throw new Error(`Drive ${method} ${r.status}: ${text.slice(0, 200)}`);
+    }
+    return r;
+  }
+
+  async function listFolderByName(name, parentId) {
+    const safeName = name.replace(/'/g, "\\'");
+    const q = `name='${safeName}' and mimeType='application/vnd.google-apps.folder' and trashed=false` + (parentId ? ` and '${parentId}' in parents` : '');
+    const url = `${API}/files?q=${encodeURIComponent(q)}&fields=files(id,name)&spaces=drive&pageSize=5`;
+    const r = await req('GET', url);
+    const data = await r.json();
+    return data.files?.[0] || null;
+  }
+
+  async function createFolder(name, parentId) {
+    const metadata = { name, mimeType: 'application/vnd.google-apps.folder' };
+    if (parentId) metadata.parents = [parentId];
+    const r = await req('POST', `${API}/files?fields=id,name`, {
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(metadata),
+    });
+    return await r.json();
+  }
+
+  async function ensureFolderPath(segments) {
+    // segments = ['FieldTrack', 'Bayer', 'SoybeanTrial', 'App A', '14 DAA', 'Rep 1']
+    const key = segments.join('/');
+    if (folderCache.has(key)) return folderCache.get(key);
+    let parentId = null;
+    let acc = '';
+    for (const seg of segments) {
+      acc = acc ? acc + '/' + seg : seg;
+      if (folderCache.has(acc)) { parentId = folderCache.get(acc); continue; }
+      let folder = await listFolderByName(seg, parentId);
+      if (!folder) folder = await createFolder(seg, parentId);
+      folderCache.set(acc, folder.id);
+      parentId = folder.id;
+    }
+    await persistCache();
+    return parentId;
+  }
+
+  async function uploadBlob({ blob, name, folderId, metadata = {} }) {
+    const meta = { name, parents: [folderId], ...metadata };
+    const boundary = '-------ft' + Math.random().toString(36).slice(2);
+    const delim = `\r\n--${boundary}\r\n`;
+    const closeDelim = `\r\n--${boundary}--`;
+    const parts = [
+      delim, 'Content-Type: application/json; charset=UTF-8\r\n\r\n', JSON.stringify(meta),
+      delim, `Content-Type: ${blob.type || 'image/jpeg'}\r\n\r\n`, blob, closeDelim,
+    ];
+    const body = new Blob(parts);
+    const r = await req('POST', `${UPLOAD_API}/files?uploadType=multipart&fields=id,name,webViewLink,md5Checksum`, {
+      headers: { 'Content-Type': 'multipart/related; boundary=' + boundary },
+      body,
+    });
+    return await r.json();
+  }
+
+  async function uploadJSON({ name, folderId, obj, existingFileId }) {
+    const body = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+    if (existingFileId) {
+      const r = await req('PATCH', `${UPLOAD_API}/files/${existingFileId}?uploadType=media&fields=id,modifiedTime,md5Checksum`, {
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      });
+      return await r.json();
+    }
+    return uploadBlob({ blob: body, name, folderId, metadata: {} });
+  }
+
+  async function downloadFile(fileId) {
+    const r = await req('GET', `${API}/files/${fileId}?alt=media`);
+    return await r.text();
+  }
+
+  async function getFileMeta(fileId) {
+    const r = await req('GET', `${API}/files/${fileId}?fields=id,name,modifiedTime,md5Checksum,size`);
+    return await r.json();
+  }
+
+  async function findFile(name, parentId) {
+    const safeName = name.replace(/'/g, "\\'");
+    const q = `name='${safeName}' and trashed=false and '${parentId}' in parents`;
+    const url = `${API}/files?q=${encodeURIComponent(q)}&fields=files(id,name,modifiedTime,md5Checksum)&pageSize=5`;
+    const r = await req('GET', url);
+    return (await r.json()).files?.[0] || null;
+  }
+
+  return {
+    restoreCache, persistCache, clearCache,
+    ensureFolderPath, uploadBlob, uploadJSON, downloadFile, getFileMeta, findFile,
+  };
+})();
+
+
+/* ---------- Manifest: the cross-device source of truth ----------
+   Stored at  FieldTrack/_Config/manifest.json  in Drive.
+   Every device pulls on open, polls every 30s, and pushes on local change.
+   Conflict strategy: latest-updatedAt wins per trial (simple and safe for
+   small teams; race conditions on the same trial within seconds can drop
+   one edit, which we accept as a tradeoff against backend complexity).
+---------------------------------------------------------------- */
+const Manifest = (() => {
+  let data = null;              // { version, trials: {id: trial}, updatedAt }
+  let remoteFileId = null;      // Drive file ID of manifest.json
+  let remoteModifiedTime = null; // most recent Drive modifiedTime we've seen
+  let pollTimer = null;
+  let pushInFlight = false;
+  const changeListeners = [];
+
+  function onChange(fn) { changeListeners.push(fn); }
+  function emit() { changeListeners.forEach(fn => { try { fn(data); } catch (e) { console.error(e); } }); }
+
+  function empty() {
+    return { version: CONFIG.SCHEMA_VERSION, trials: {}, updatedAt: nowISO() };
+  }
+
+  async function load() {
+    // 1) Load local copy first so UI can render immediately
+    const local = await IDB.get('manifest', 'main');
+    data = local || empty();
+
+    // 2) Pull remote (if online + authed), merge, write back
+    try { await pullAndMerge(); } catch (e) { console.warn('Manifest pull failed:', e); }
+
+    emit();
+    startPolling();
+    return data;
+  }
+
+  async function pullAndMerge() {
+    if (!Auth.isSignedIn || !navigator.onLine) return;
+
+    const rootId = await Drive.ensureFolderPath([CONFIG.ROOT_FOLDER, CONFIG.CONFIG_FOLDER]);
+    let file = await Drive.findFile(CONFIG.MANIFEST_FILE, rootId);
+
+    if (!file) {
+      // Remote has nothing; push whatever we have
+      const uploaded = await Drive.uploadJSON({ name: CONFIG.MANIFEST_FILE, folderId: rootId, obj: data });
+      remoteFileId = uploaded.id;
+      remoteModifiedTime = uploaded.modifiedTime || nowISO();
+      return;
+    }
+
+    remoteFileId = file.id;
+    if (remoteModifiedTime && file.modifiedTime === remoteModifiedTime) {
+      // Unchanged since last check: nothing to do
+      return;
+    }
+
+    const text = await Drive.downloadFile(file.id);
+    let remote;
+    try { remote = JSON.parse(text); } catch { remote = empty(); }
+    remoteModifiedTime = file.modifiedTime;
+
+    const merged = mergeManifests(data, remote);
+    const changedLocally = JSON.stringify(merged) !== JSON.stringify(data);
+    data = merged;
+    await IDB.set('manifest', 'main', data);
+
+    // If merge produced anything new relative to remote, push it back
+    if (JSON.stringify(remote) !== JSON.stringify(merged)) {
+      const uploaded = await Drive.uploadJSON({ name: CONFIG.MANIFEST_FILE, folderId: rootId, obj: data, existingFileId: remoteFileId });
+      remoteModifiedTime = uploaded.modifiedTime || nowISO();
+    }
+
+    if (changedLocally) emit();
+  }
+
+  function mergeManifests(local, remote) {
+    // Per-trial latest-updatedAt wins.
+    const out = { version: CONFIG.SCHEMA_VERSION, trials: {}, updatedAt: nowISO() };
+    const allIds = new Set([...Object.keys(local.trials || {}), ...Object.keys(remote.trials || {})]);
+    for (const id of allIds) {
+      const a = (local.trials || {})[id];
+      const b = (remote.trials || {})[id];
+      if (a && !b) out.trials[id] = a;
+      else if (b && !a) out.trials[id] = b;
+      else {
+        out.trials[id] = (new Date(a.updatedAt) >= new Date(b.updatedAt)) ? a : b;
+      }
+    }
+    return out;
+  }
+
+  async function push() {
+    if (!Auth.isSignedIn || !navigator.onLine) return;
+    if (pushInFlight) return;
+    pushInFlight = true;
+    try {
+      await pullAndMerge();  // merge anything new remotely first
+      const rootId = await Drive.ensureFolderPath([CONFIG.ROOT_FOLDER, CONFIG.CONFIG_FOLDER]);
+      const uploaded = await Drive.uploadJSON({
+        name: CONFIG.MANIFEST_FILE, folderId: rootId, obj: data, existingFileId: remoteFileId,
+      });
+      remoteFileId = uploaded.id;
+      remoteModifiedTime = uploaded.modifiedTime || nowISO();
+    } catch (e) {
+      console.error('Manifest push failed:', e);
+    } finally {
+      pushInFlight = false;
+    }
+  }
+
+  function startPolling() {
+    clearInterval(pollTimer);
+    pollTimer = setInterval(async () => {
+      if (!document.hidden) {
+        try { await pullAndMerge(); } catch (e) { /* soft */ }
+      }
+    }, CONFIG.MANIFEST_POLL_MS);
+  }
+
+  async function saveTrial(trial) {
+    trial.updatedAt = nowISO();
+    trial.lastModifiedBy = Auth.email || null;
+    data.trials[trial.id] = trial;
+    data.updatedAt = nowISO();
+    await IDB.set('manifest', 'main', data);
+    emit();
+    push();  // fire-and-forget
+  }
+  async function deleteTrial(id) {
+    delete data.trials[id];
+    data.updatedAt = nowISO();
+    await IDB.set('manifest', 'main', data);
+    emit();
+    push();
+  }
+  function getTrial(id) { return data.trials[id] || null; }
+  function allTrials() { return Object.values(data.trials).sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || '')); }
+
+  return { load, onChange, saveTrial, deleteTrial, getTrial, allTrials, pullAndMerge, push, get data() { return data; } };
+})();
+
+/* ---------- Trial factory & date math ---------- */
+const TrialModel = {
+  create({ name, sponsor, crop, datePlanted }) {
+    return {
+      id: uid(),
+      name: name.trim(),
+      sponsor: sponsor.trim(),
+      crop: (crop || '').trim(),
+      datePlanted: datePlanted || null,
+      applications: [],   // [{ id:'A', name:'PRE', dateApplied:'2026-05-12', intervals:[7,14,21,28] }]
+      reps: 4,
+      plotsPerRep: 15,
+      plotStartByRep: { 1: 101, 2: 201, 3: 301, 4: 401 },
+      plotMap: {},        // { "101": { treatment: "T1", herbicide: "Valor SX", notes: "" } }
+      createdAt: nowISO(),
+      updatedAt: nowISO(),
+      createdBy: Auth.email || null,
+      lastModifiedBy: Auth.email || null,
+    };
+  },
+
+  addApplication(trial, { label, dateApplied, intervals }) {
+    const used = new Set(trial.applications.map(a => a.id));
+    let id = 'A';
+    for (const c of 'ABCDEFGH') if (!used.has(c)) { id = c; break; }
+    trial.applications.push({
+      id, label: label || `Application ${id}`, dateApplied: dateApplied || null,
+      intervals: Array.isArray(intervals) && intervals.length ? intervals : [7, 14, 21, 28],
+    });
+    return trial;
+  },
+
+  // All evaluation dates across all applications for this trial
+  upcomingEvaluations(trial, { lookback = 3, lookahead = 30 } = {}) {
+    const today = todayISO();
+    const out = [];
+    for (const app of trial.applications || []) {
+      if (!app.dateApplied) continue;
+      for (const d of app.intervals) {
+        const date = addDays(app.dateApplied, d);
+        const delta = daysBetween(today, date);
+        if (delta >= -lookback && delta <= lookahead) {
+          out.push({
+            trialId: trial.id,
+            trialName: trial.name,
+            sponsor: trial.sponsor,
+            appId: app.id,
+            appLabel: app.label,
+            daa: d,
+            daaLabel: `${d} DAA`,
+            date,
+            daysUntil: delta,
+          });
+        }
+      }
+    }
+    return out.sort((a, b) => a.date.localeCompare(b.date));
+  },
+
+  // All evaluations including past (for picker inside capture screen)
+  allEvaluations(trial) {
+    const out = [];
+    for (const app of trial.applications || []) {
+      for (const d of app.intervals) {
+        out.push({
+          appId: app.id, appLabel: app.label, daa: d, daaLabel: `${d} DAA`,
+          date: app.dateApplied ? addDays(app.dateApplied, d) : null,
+        });
+      }
+    }
+    return out;
+  },
+
+  ensurePlotMap(trial) {
+    trial.plotMap = trial.plotMap || {};
+    for (let r = 1; r <= trial.reps; r++) {
+      const start = trial.plotStartByRep[r] || (r * 100 + 1);
+      for (let i = 0; i < trial.plotsPerRep; i++) {
+        const plot = String(start + i);
+        if (!trial.plotMap[plot]) trial.plotMap[plot] = { treatment: '', herbicide: '', notes: '' };
+      }
+    }
+    return trial;
+  },
+
+  plotsInRep(trial, rep) {
+    const start = trial.plotStartByRep[rep] || (rep * 100 + 1);
+    return Array.from({ length: trial.plotsPerRep }, (_, i) => String(start + i));
+  },
+};
+
+/* ---------- Photo store (local queue) ---------- */
+const PhotoStore = {
+  async add(photo) {
+    photo.id = photo.id || ('p_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7));
+    photo.status = photo.status || 'pending';
+    photo.createdAt = photo.createdAt || nowISO();
+    await IDB.set('photos', photo.id, photo);
+    return photo;
+  },
+  async get(id) { return IDB.get('photos', id); },
+  async all() { return IDB.all('photos'); },
+  async update(id, patch) {
+    const p = await this.get(id);
+    if (!p) return null;
+    Object.assign(p, patch);
+    await IDB.set('photos', id, p);
+    return p;
+  },
+  async remove(id) { await IDB.del('photos', id); },
+  async pending() {
+    const all = await this.all();
+    return all.filter(p => p.status === 'pending' || p.status === 'error');
+  },
+  async repairStuck() {
+    const all = await this.all();
+    for (const p of all) if (p.status === 'uploading') await this.update(p.id, { status: 'pending' });
+  },
+  async pruneOldBlobs() {
+    const cutoff = Date.now() - CONFIG.BLOB_RETENTION_DAYS * 86400000;
+    const all = await this.all();
+    for (const p of all) {
+      if (p.status === 'synced' && p.blob && new Date(p.syncedAt || p.createdAt).getTime() < cutoff) {
+        p.blob = null;
+        await IDB.set('photos', p.id, p);
+      }
+    }
+  },
+};
+
+/* ---------- Geolocation + weather ---------- */
+async function getGPS() {
+  return new Promise(resolve => {
+    if (!navigator.geolocation) return resolve(null);
     navigator.geolocation.getCurrentPosition(
-      (p) => { clearTimeout(t); res({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy }); },
-      () => { clearTimeout(t); res(null); },
-      { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: 30000 }
+      pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
+      () => resolve(null),
+      { enableHighAccuracy: true, timeout: 6000, maximumAge: 30000 }
     );
   });
 }
-
-async function fetchWeather(lat, lng) {
-  if (!STATE.online) return null;
+async function getWeather(lat, lng) {
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph`;
     const r = await fetch(url);
     if (!r.ok) return null;
-    const j = await r.json();
-    return j.current || null;
-  } catch { return null; }
-}
-
-const WEATHER_CODES = {0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Rime fog',51:'Light drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Rain showers',81:'Rain showers',82:'Heavy showers',95:'Thunderstorm',96:'T-storm w/ hail',99:'T-storm w/ heavy hail'};
-
-/* --------------------------------------------------------------
-   GOOGLE AUTH — silent refresh for season-long sign-in
--------------------------------------------------------------- */
-function gisReady() {
-  return new Promise((res) => {
-    if (window.google && google.accounts && google.accounts.oauth2) return res();
-    const poll = setInterval(() => {
-      if (window.google && google.accounts && google.accounts.oauth2) {
-        clearInterval(poll); res();
-      }
-    }, 100);
-  });
-}
-
-async function initTokenClient() {
-  await gisReady();
-  STATE.tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CONFIG.CLIENT_ID,
-    scope: CONFIG.SCOPES,
-    callback: () => {}, // set per-call
-  });
-}
-
-function requestToken({ silent }) {
-  return new Promise((res, rej) => {
-    if (!STATE.tokenClient) return rej(new Error('Auth not ready'));
-    STATE.tokenClient.callback = (resp) => {
-      if (resp && resp.access_token) {
-        const exp = Date.now() + (resp.expires_in || 3600) * 1000;
-        STATE.token = resp.access_token;
-        STATE.tokenExp = exp;
-        IDB.setting('token', { token: resp.access_token, exp });
-        res(resp);
-      } else {
-        rej(resp && resp.error ? new Error(resp.error) : new Error('No token'));
-      }
+    const data = await r.json();
+    const c = data.current || {};
+    return {
+      temp_f: c.temperature_2m, humidity_pct: c.relative_humidity_2m,
+      wind_mph: c.wind_speed_10m, weather_code: c.weather_code,
     };
-    try {
-      STATE.tokenClient.requestAccessToken({ prompt: silent ? '' : 'consent' });
-    } catch (e) { rej(e); }
-  });
-}
-
-async function ensureToken() {
-  if (STATE.token && STATE.tokenExp - Date.now() > 60000) return STATE.token;
-  // Try silent refresh first
-  try {
-    await requestToken({ silent: true });
-    return STATE.token;
-  } catch (e) {
-    console.warn('Silent refresh failed', e);
-    throw e;
-  }
-}
-
-async function fetchUserInfo() {
-  try {
-    const r = await driveFetch(CONFIG.USERINFO, {});
-    STATE.user = r;
-    IDB.setting('user', r);
-    return r;
   } catch { return null; }
 }
 
-async function signOut() {
-  try {
-    if (STATE.token && window.google && google.accounts && google.accounts.oauth2) {
-      google.accounts.oauth2.revoke(STATE.token, () => {});
+/* ---------- Sync engine: photo uploads + CSV generation ---------- */
+const Sync = (() => {
+  let running = false;
+  let timer = null;
+  const listeners = [];
+
+  function onStatus(fn) { listeners.push(fn); }
+  function emit(status) { listeners.forEach(fn => { try { fn(status); } catch (_) {} }); }
+
+  function canSyncNow() {
+    if (!navigator.onLine) return false;
+    if (!Auth.isSignedIn) return false;
+    const prefs = window._settings || {};
+    if (prefs.wifiOnly && navigator.connection) {
+      const t = navigator.connection.type;
+      if (t && t !== 'wifi' && t !== 'ethernet' && t !== 'unknown') return false;
     }
-  } catch {}
-  STATE.token = null; STATE.tokenExp = 0; STATE.user = null;
-  await IDB.del('settings', 'token');
-  await IDB.del('settings', 'user');
-  showView('auth');
-  toast('Signed out', 'warn');
-}
-
-// Periodic silent refresh loop
-setInterval(async () => {
-  if (!STATE.token) return;
-  if (STATE.tokenExp - Date.now() < 10 * 60 * 1000) {
-    try { await requestToken({ silent: true }); }
-    catch { /* user will see reconnect if they interact */ }
+    return true;
   }
-}, 60 * 1000);
 
-/* --------------------------------------------------------------
-   DRIVE API
--------------------------------------------------------------- */
-async function driveFetch(url, opts={}) {
-  await ensureToken();
-  const headers = Object.assign({}, opts.headers || {}, { 'Authorization': 'Bearer ' + STATE.token });
-  const r = await fetch(url, Object.assign({}, opts, { headers }));
-  if (r.status === 401) {
-    // Token might be bad; force refresh once
-    await requestToken({ silent: true });
-    const headers2 = Object.assign({}, opts.headers || {}, { 'Authorization': 'Bearer ' + STATE.token });
-    const r2 = await fetch(url, Object.assign({}, opts, { headers: headers2 }));
-    if (!r2.ok) throw new Error('Drive ' + r2.status);
-    return r2.json();
-  }
-  if (!r.ok) {
-    const txt = await r.text().catch(()=>'');
-    throw new Error('Drive ' + r.status + ': ' + txt.slice(0,200));
-  }
-  // Some endpoints (media upload) may return non-json — callers know what to expect
-  const ct = r.headers.get('content-type') || '';
-  return ct.includes('application/json') ? r.json() : r;
-}
-
-async function findFolder(name, parentId) {
-  const q = [
-    `name='${name.replace(/'/g,"\\'")}'`,
-    `mimeType='application/vnd.google-apps.folder'`,
-    `trashed=false`,
-    parentId ? `'${parentId}' in parents` : `'root' in parents`
-  ].join(' and ');
-  const url = `${CONFIG.DRIVE_API}/files?q=${encodeURIComponent(q)}&fields=files(id,name)&pageSize=5`;
-  const j = await driveFetch(url);
-  return j.files && j.files[0] ? j.files[0].id : null;
-}
-
-async function createFolder(name, parentId) {
-  const body = { name, mimeType: 'application/vnd.google-apps.folder' };
-  if (parentId) body.parents = [parentId];
-  const j = await driveFetch(`${CONFIG.DRIVE_API}/files?fields=id,name`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return j.id;
-}
-
-async function ensureFolder(name, parentId) {
-  const cacheKey = (parentId || 'root') + '/' + name;
-  const cached = await IDB.get('folders', cacheKey);
-  if (cached && cached.id) {
-    // Verify it still exists (cheap; optional). We trust the cache for speed.
-    return cached.id;
-  }
-  let id = await findFolder(name, parentId);
-  if (!id) id = await createFolder(name, parentId);
-  await IDB.put('folders', { key: cacheKey, id, name, parentId: parentId || 'root' });
-  return id;
-}
-
-async function ensureRootFolders() {
-  const rootId = await ensureFolder(CONFIG.ROOT_FOLDER, null);
-  const metaId = await ensureFolder(CONFIG.META_FOLDER, rootId);
-  STATE.rootFolderId = rootId;
-  STATE.metaRootFolderId = metaId;
-  return { rootId, metaId };
-}
-
-async function ensureImageFolder(sponsor, trialName, repTiming) {
-  const root = STATE.rootFolderId || (await ensureRootFolders()).rootId;
-  const sponsorId = await ensureFolder(safe(sponsor), root);
-  const trialId = await ensureFolder(safe(trialName), sponsorId);
-  const leafId = await ensureFolder(safe(repTiming), trialId);
-  return leafId;
-}
-
-async function ensureMetadataFolder(sponsor) {
-  const meta = STATE.metaRootFolderId || (await ensureRootFolders()).metaId;
-  return ensureFolder(safe(sponsor), meta);
-}
-
-// Multipart upload
-async function uploadPhotoToFolder(folderId, blob, filename, retry=true) {
-  const metadata = { name: filename, parents: [folderId] };
-  const boundary = '----fieldtrack' + Math.random().toString(36).slice(2);
-  const body = await buildMultipart(metadata, blob, boundary);
-  const r = await fetch(`${CONFIG.DRIVE_UPLOAD}/files?uploadType=multipart&fields=id,name,webViewLink`, {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + STATE.token,
-      'Content-Type': 'multipart/related; boundary=' + boundary
-    },
-    body
-  });
-  if (r.status === 401) {
-    await requestToken({ silent: true });
-    return uploadPhotoToFolder(folderId, blob, filename, retry);
-  }
-  if (r.status === 404 && retry) {
-    // Folder was deleted out from under us — clear cache and let caller rebuild
-    throw new Error('STALE_FOLDER');
-  }
-  if (!r.ok) throw new Error('Upload failed ' + r.status);
-  return r.json();
-}
-
-async function buildMultipart(metadata, blob, boundary) {
-  const metaPart = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`;
-  const fileHead = `--${boundary}\r\nContent-Type: ${blob.type || 'image/jpeg'}\r\n\r\n`;
-  const tail = `\r\n--${boundary}--`;
-  const enc = new TextEncoder();
-  const head = enc.encode(metaPart + fileHead);
-  const tailBuf = enc.encode(tail);
-  const blobBuf = new Uint8Array(await blob.arrayBuffer());
-  const out = new Uint8Array(head.length + blobBuf.length + tailBuf.length);
-  out.set(head, 0);
-  out.set(blobBuf, head.length);
-  out.set(tailBuf, head.length + blobBuf.length);
-  return out.buffer;
-}
-
-async function uploadOrReplaceText(folderId, filename, textContent, mimeType='text/csv') {
-  // Check cache for existing file id
-  const cacheKey = 'meta:' + folderId + '/' + filename;
-  let fileId = (await IDB.get('files', cacheKey))?.id || null;
-  // If no cached id, search Drive
-  if (!fileId) {
-    const q = `name='${filename.replace(/'/g,"\\'")}' and '${folderId}' in parents and trashed=false`;
-    const j = await driveFetch(`${CONFIG.DRIVE_API}/files?q=${encodeURIComponent(q)}&fields=files(id,name)&pageSize=1`);
-    fileId = j.files && j.files[0] ? j.files[0].id : null;
-  }
-  const blob = new Blob([textContent], { type: mimeType });
-  if (fileId) {
-    // PATCH content
-    const r = await fetch(`${CONFIG.DRIVE_UPLOAD}/files/${fileId}?uploadType=media`, {
-      method: 'PATCH',
-      headers: { 'Authorization': 'Bearer ' + STATE.token, 'Content-Type': mimeType },
-      body: blob
-    });
-    if (!r.ok) throw new Error('Meta update failed ' + r.status);
-    const j = await r.json();
-    await IDB.put('files', { key: cacheKey, id: j.id, folderId, filename });
-    return j;
-  } else {
-    // Create
-    const metadata = { name: filename, parents: [folderId], mimeType };
-    const boundary = '----meta' + Math.random().toString(36).slice(2);
-    const body = await buildMultipart(metadata, blob, boundary);
-    const r = await fetch(`${CONFIG.DRIVE_UPLOAD}/files?uploadType=multipart&fields=id,name`, {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + STATE.token, 'Content-Type': 'multipart/related; boundary=' + boundary },
-      body
-    });
-    if (!r.ok) throw new Error('Meta create failed ' + r.status);
-    const j = await r.json();
-    await IDB.put('files', { key: cacheKey, id: j.id, folderId, filename });
-    return j;
-  }
-}
-
-/* --------------------------------------------------------------
-   METADATA CSV BUILDER
-   One CSV per trial, lives in _Metadata/[Sponsor]/[Trial]_metadata.csv
--------------------------------------------------------------- */
-const META_COLUMNS = [
-  'capture_timestamp_iso','sponsor','trial_name','crop','rep','evaluation_timing',
-  'plot','treatment','herbicide','notes',
-  'latitude','longitude','gps_accuracy_m',
-  'temp_f','humidity_pct','wind_mph','weather',
-  'image_filename','drive_file_id','drive_view_link'
-];
-
-function csvEscape(v) {
-  if (v === null || v === undefined) return '';
-  const s = String(v);
-  if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
-  return s;
-}
-
-function rowsToCSV(rows) {
-  const head = META_COLUMNS.join(',');
-  const body = rows.map(r => META_COLUMNS.map(k => csvEscape(r[k])).join(',')).join('\n');
-  return head + '\n' + body + '\n';
-}
-
-async function buildTrialCSV(trialId) {
-  // Pull all photos for this trial regardless of status (synced + pending)
-  const all = await IDB.where('photos', 'trialId', trialId);
-  const rows = all
-    .sort((a,b) => (a.capturedAt||0) - (b.capturedAt||0))
-    .map(p => ({
-      capture_timestamp_iso: new Date(p.capturedAt).toISOString(),
-      sponsor: p.sponsor, trial_name: p.trialName, crop: p.crop || '',
-      rep: p.rep, evaluation_timing: p.timing || '',
-      plot: p.meta?.plot || '', treatment: p.meta?.treatment || '',
-      herbicide: p.meta?.herbicide || '', notes: p.meta?.notes || '',
-      latitude: p.gps?.lat ?? '', longitude: p.gps?.lng ?? '',
-      gps_accuracy_m: p.gps?.acc ?? '',
-      temp_f: p.weather?.temperature_2m ?? '',
-      humidity_pct: p.weather?.relative_humidity_2m ?? '',
-      wind_mph: p.weather?.wind_speed_10m ?? '',
-      weather: WEATHER_CODES[p.weather?.weather_code] || '',
-      image_filename: p.filename,
-      drive_file_id: p.driveId || '',
-      drive_view_link: p.driveLink || ''
-    }));
-  return rowsToCSV(rows);
-}
-
-/* --------------------------------------------------------------
-   SYNC ENGINE
--------------------------------------------------------------- */
-async function canSyncNow() {
-  if (!STATE.online) return false;
-  if (!STATE.token) return false;
-  const s = await IDB.setting('wifiOnly');
-  const wifiOnly = s !== undefined ? !!s : DEFAULT_SETTINGS.wifiOnly;
-  if (!wifiOnly) return true;
-  // Wi-Fi only: require known wifi. If API doesn't tell us, fall back to allow (better than never syncing on iOS)
-  if (STATE.wifi === false) return false;
-  return true;
-}
-
-async function pendingPhotos() {
-  const all = await IDB.all('photos');
-  return all.filter(p => p.status === 'pending' || p.status === 'error' || p.status === 'uploading');
-}
-
-// On boot, repair any photos stuck mid-upload from a previous session
-async function repairStuckUploads() {
-  const all = await IDB.all('photos');
-  for (const p of all) {
-    if (p.status === 'uploading') { p.status = 'pending'; await IDB.put('photos', p); }
-  }
-}
-
-// Keep storage manageable: drop blob data for photos synced > 2 days ago.
-// We retain the record (metadata + Drive link) so CSVs can still be rebuilt.
-async function pruneOldBlobs() {
-  const cutoff = Date.now() - 2 * 24 * 3600 * 1000;
-  const all = await IDB.all('photos');
-  let freed = 0;
-  for (const p of all) {
-    if (p.status === 'synced' && p.syncedAt && p.syncedAt < cutoff && p.blob) {
-      const size = p.blob.size || 0;
-      delete p.blob;
-      p.blobPruned = true;
-      await IDB.put('photos', p);
-      freed += size;
-    }
-  }
-  if (freed > 0) console.log('Pruned old blobs, freed', (freed/1024/1024).toFixed(1), 'MB');
-}
-
-async function onMaybeSync() {
-  detectNetwork();
-  renderStatusStrip();
-  const auto = await IDB.setting('autoSync');
-  const autoSync = auto !== undefined ? !!auto : DEFAULT_SETTINGS.autoSync;
-  if (!autoSync) return;
-  if (!(await canSyncNow())) return;
-  runSyncOnce();
-}
-
-async function runSyncOnce() {
-  if (STATE.syncing) return;
-  STATE.syncing = true;
-  renderStatusStrip();
-  try {
-    if (!STATE.rootFolderId) await ensureRootFolders();
-    const queue = await pendingPhotos();
-    if (queue.length === 0) { STATE.syncing = false; renderStatusStrip(); return; }
-    const dirtyTrials = new Set();
-    for (const photo of queue) {
-      if (!(await canSyncNow())) break;
-      try {
-        photo.status = 'uploading';
-        await IDB.put('photos', photo);
-        renderSyncView(); renderStatusStrip();
-        const repTimingLabel = photo.timing ? `${photo.timing}_Rep${photo.rep}` : `Rep${photo.rep}`;
-        let folderId = await ensureImageFolder(photo.sponsor, photo.trialName, repTimingLabel);
-        let result;
-        try {
-          result = await uploadPhotoToFolder(folderId, photo.blob, photo.filename);
-        } catch (e) {
-          if (e.message === 'STALE_FOLDER') {
-            // Clear folder cache and rebuild
-            const all = await IDB.all('folders');
-            for (const f of all) await IDB.del('folders', f.key);
-            STATE.rootFolderId = null; STATE.metaRootFolderId = null;
-            await ensureRootFolders();
-            folderId = await ensureImageFolder(photo.sponsor, photo.trialName, repTimingLabel);
-            result = await uploadPhotoToFolder(folderId, photo.blob, photo.filename, false);
-          } else throw e;
-        }
-        photo.driveId = result.id;
-        photo.driveLink = result.webViewLink || '';
-        photo.status = 'synced';
-        photo.syncedAt = Date.now();
-        await IDB.put('photos', photo);
-        dirtyTrials.add(photo.trialId);
-      } catch (err) {
-        console.error('Upload error', err);
-        photo.status = 'error';
-        photo.error = (err && err.message) || String(err);
-        await IDB.put('photos', photo);
-        renderSyncView();
+  async function runOnce() {
+    if (running) return;
+    running = true;
+    emit('running');
+    try {
+      const pending = await PhotoStore.pending();
+      if (pending.length === 0) { emit('idle'); return; }
+      for (const photo of pending) {
+        if (!canSyncNow()) break;
+        await uploadOne(photo);
       }
+      await rebuildDirtyCSVs();
+    } catch (e) {
+      console.error('sync error', e);
+    } finally {
+      running = false;
+      emit('idle');
+      updateSyncUI();
     }
-    // Rebuild metadata CSVs for affected trials
-    for (const tid of dirtyTrials) {
+  }
+
+  async function uploadOne(photo) {
+    if (!photo.blob) {
+      // Blob was pruned but photo didn't finish — mark error
+      await PhotoStore.update(photo.id, { status: 'error', errorMessage: 'Local image data no longer available' });
+      return;
+    }
+    await PhotoStore.update(photo.id, { status: 'uploading' });
+    try {
+      const trial = Manifest.getTrial(photo.trialId);
+      if (!trial) throw new Error('Trial not found in manifest');
+      const segments = [
+        CONFIG.ROOT_FOLDER,
+        sanitizePath(photo.sponsor || trial.sponsor),
+        sanitizePath(trial.name),
+        `App ${photo.appId}`,
+        `${photo.daa} DAA`,
+        `Rep ${photo.rep}`,
+      ];
+      let folderId;
       try {
-        const trial = await IDB.get('trials', tid);
-        if (!trial) continue;
-        const metaFolder = await ensureMetadataFolder(trial.sponsor);
-        const csv = await buildTrialCSV(tid);
-        const fname = `${safe(trial.name)}_metadata.csv`;
-        await uploadOrReplaceText(metaFolder, fname, csv, 'text/csv');
+        folderId = await Drive.ensureFolderPath(segments);
       } catch (e) {
-        console.error('Metadata upload failed', e);
+        if (e.status === 404) { Drive.clearCache(); folderId = await Drive.ensureFolderPath(segments); }
+        else throw e;
+      }
+      const filename = `${photo.plot}_${photo.id.slice(-6)}.jpg`;
+      const uploaded = await Drive.uploadBlob({ blob: photo.blob, name: filename, folderId });
+      await PhotoStore.update(photo.id, {
+        status: 'synced',
+        driveFileId: uploaded.id,
+        driveLink: uploaded.webViewLink,
+        syncedAt: nowISO(),
+        errorMessage: null,
+      });
+      window._dirtyCSVs = window._dirtyCSVs || new Set();
+      window._dirtyCSVs.add(photo.trialId);
+    } catch (e) {
+      console.error('upload failed', e);
+      await PhotoStore.update(photo.id, { status: 'error', errorMessage: (e.message || '').slice(0, 250) });
+    }
+  }
+
+  async function rebuildDirtyCSVs() {
+    const dirty = window._dirtyCSVs || new Set();
+    if (!dirty.size) return;
+    const allPhotos = await PhotoStore.all();
+    for (const trialId of dirty) {
+      const trial = Manifest.getTrial(trialId);
+      if (!trial) continue;
+      const photos = allPhotos.filter(p => p.trialId === trialId && p.status === 'synced');
+      const csv = buildCSV(trial, photos);
+      try {
+        const sponsorFolderId = await Drive.ensureFolderPath([
+          CONFIG.ROOT_FOLDER, CONFIG.METADATA_FOLDER, sanitizePath(trial.sponsor),
+        ]);
+        const fname = `${sanitizePath(trial.name)}_metadata.csv`;
+        const existing = await Drive.findFile(fname, sponsorFolderId);
+        const blob = new Blob([csv], { type: 'text/csv' });
+        if (existing) {
+          await fetch(`https://www.googleapis.com/upload/drive/v3/files/${existing.id}?uploadType=media`, {
+            method: 'PATCH',
+            headers: { Authorization: 'Bearer ' + Auth.token.access_token, 'Content-Type': 'text/csv' },
+            body: blob,
+          });
+        } else {
+          await Drive.uploadBlob({ blob, name: fname, folderId: sponsorFolderId });
+        }
+      } catch (e) { console.warn('CSV write failed for ' + trial.name, e); }
+    }
+    dirty.clear();
+  }
+
+  function buildCSV(trial, photos) {
+    const cols = ['capture_timestamp_iso', 'sponsor', 'trial_name', 'crop', 'application_id', 'application_label', 'application_date', 'daa', 'evaluation_date', 'rep', 'plot', 'treatment', 'herbicide', 'plot_notes', 'capture_notes', 'latitude', 'longitude', 'gps_accuracy_m', 'temp_f', 'humidity_pct', 'wind_mph', 'image_filename', 'drive_file_id', 'drive_view_link'];
+    const rows = [cols.join(',')];
+    for (const p of photos) {
+      const plotMeta = trial.plotMap?.[p.plot] || {};
+      const app = trial.applications?.find(a => a.id === p.appId) || {};
+      rows.push([
+        p.capturedAt, trial.sponsor, trial.name, trial.crop || '',
+        p.appId, app.label || '', app.dateApplied || '', p.daa, p.evalDate || '',
+        p.rep, p.plot, plotMeta.treatment || '', plotMeta.herbicide || '',
+        plotMeta.notes || '', p.notes || '',
+        p.gps?.lat ?? '', p.gps?.lng ?? '', p.gps?.accuracy ?? '',
+        p.weather?.temp_f ?? '', p.weather?.humidity_pct ?? '', p.weather?.wind_mph ?? '',
+        `${p.plot}_${p.id.slice(-6)}.jpg`, p.driveFileId || '', p.driveLink || '',
+      ].map(escapeCSV).join(','));
+    }
+    return rows.join('\r\n');
+  }
+
+  function start() {
+    clearInterval(timer);
+    timer = setInterval(() => { if (canSyncNow()) runOnce(); }, CONFIG.SYNC_RETRY_MS);
+    // Also sync on online event
+    window.addEventListener('online', () => runOnce());
+    // And on visibility change
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) runOnce(); });
+    // And register background sync if available
+    registerBackgroundSync();
+  }
+
+  async function registerBackgroundSync() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      if ('sync' in reg) await reg.sync.register('fieldtrack-upload').catch(() => {});
+    } catch (_) {}
+  }
+
+  return { start, runNow: runOnce, canSyncNow, onStatus };
+})();
+
+/* ---------- sync UI status updater ---------- */
+async function updateSyncUI() {
+  const pending = await PhotoStore.pending();
+  const el = $('#statPending');
+  if (el) el.textContent = pending.length;
+  if ($('#v_sync').classList.contains('active')) UI.renderSync();
+}
+
+
+/* ---------- UI / Router / View rendering ---------- */
+const UI = (() => {
+  let currentView = 'auth';
+  let ctx = { trialId: null, session: null };   // per-view context
+
+  function go(name, opts = {}) {
+    const cur = $('.view.active');
+    if (cur) cur.classList.remove('active');
+    const next = $('#v_' + name);
+    if (!next) { console.warn('no view', name); return; }
+    next.classList.add('active');
+    currentView = name;
+    // Update bottom nav active state
+    $$('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.view === name));
+    // Refresh content
+    if (name === 'dashboard') renderDashboard();
+    if (name === 'trials') renderTrials();
+    if (name === 'trial') renderTrialDetail();
+    if (name === 'capture_setup') renderCaptureSetup();
+    if (name === 'capture') renderCapture();
+    if (name === 'sync') renderSync();
+    if (name === 'settings') renderSettings();
+    window.scrollTo(0, 0);
+    toggleChrome(name !== 'auth');
+  }
+
+  function toggleChrome(show) {
+    $('#bottomNav').style.display = show ? 'flex' : 'none';
+    $('#fab').style.display = (show && (currentView === 'dashboard' || currentView === 'trials')) ? 'flex' : 'none';
+  }
+
+  function fabAction() {
+    if (currentView === 'trials' || currentView === 'dashboard') newTrial();
+  }
+
+  /* ========== DASHBOARD ========== */
+  function renderDashboard() {
+    const trials = Manifest.allTrials();
+    $('#statTrials').textContent = trials.length;
+
+    // Count all upcoming evals across trials (next 14 days)
+    let due = 0;
+    const upcoming = [];
+    for (const t of trials) {
+      const evs = TrialModel.upcomingEvaluations(t, { lookback: 0, lookahead: 14 });
+      for (const e of evs) if (e.daysUntil >= -1 && e.daysUntil <= 7) due++;
+      upcoming.push(...evs);
+    }
+    $('#statDue').textContent = due;
+    updateSyncUI();
+
+    // Banners
+    const banners = $('#dashboardBanners');
+    banners.innerHTML = '';
+    if (!navigator.onLine) banners.append(h('div', { class: 'banner warn' }, '📶 Offline — photos will be cached locally and synced when you reconnect.'));
+    if (trials.length === 0) banners.append(h('div', { class: 'banner info' }, 'Welcome. Create your first trial with the + button below to get started.'));
+
+    // Upcoming evals list
+    upcoming.sort((a, b) => a.date.localeCompare(b.date));
+    const upList = $('#upcomingEvals');
+    upList.innerHTML = '';
+    if (upcoming.length === 0) {
+      upList.append(h('div', { class: 'card compact' }, h('p', { class: 'small muted', style: 'margin:0' }, 'No upcoming evaluations. Add application dates to your trials to see them here.')));
+    } else {
+      for (const e of upcoming.slice(0, 8)) {
+        const urgent = e.daysUntil >= -1 && e.daysUntil <= 2;
+        upList.append(h('div', { class: 'trial-item', onclick: () => openTrial(e.trialId) },
+          h('div', { class: 'body' },
+            h('h4', {}, `${e.trialName}`),
+            h('div', { class: 'sub' }, `${e.sponsor} · App ${e.appId} · ${e.daaLabel}`),
+          ),
+          h('div', { class: 'badge' + (urgent ? ' due' : '') }, fmtRelDate(e.date)),
+        ));
       }
     }
-    if (queue.length) toast(`Synced ${queue.filter(p=>p.status==='synced').length} photo(s)`, 'success');
-    await pruneOldBlobs();
-  } catch (e) {
-    console.error('Sync error', e);
-    toast('Sync error: ' + (e.message || e), 'error');
-  } finally {
-    STATE.syncing = false;
-    renderStatusStrip(); renderSyncView(); renderDashboard();
-  }
-}
 
-/* --------------------------------------------------------------
-   CAMERA
--------------------------------------------------------------- */
-async function startCamera() {
-  stopCamera();
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: STATE.cameraFacing }, width: { ideal: 1920 }, height: { ideal: 1440 } },
-      audio: false
-    });
-    STATE.cameraStream = stream;
-    $('#cam-video').srcObject = stream;
-  } catch (e) {
-    toast('Camera unavailable: ' + (e.message || e), 'error');
-  }
-}
-function stopCamera() {
-  if (STATE.cameraStream) { STATE.cameraStream.getTracks().forEach(t => t.stop()); STATE.cameraStream = null; }
-}
-async function snapPhoto() {
-  const v = $('#cam-video');
-  const c = $('#cam-canvas');
-  if (!v.videoWidth) { toast('Camera still loading…'); return null; }
-  c.width = v.videoWidth; c.height = v.videoHeight;
-  c.getContext('2d').drawImage(v, 0, 0);
-  return new Promise((res) => c.toBlob((b) => res(b), 'image/jpeg', 0.88));
-}
-
-/* --------------------------------------------------------------
-   CAPTURE FLOW
--------------------------------------------------------------- */
-async function startCapture(trialId, preset={}) {
-  const trial = await IDB.get('trials', trialId);
-  if (!trial) { toast('Trial not found', 'error'); return; }
-  STATE.activeTrial = trial;
-  STATE.activeRep = preset.rep || STATE.activeRep || 1;
-  STATE.activeTiming = preset.timing || STATE.activeTiming || (trial.timings && trial.timings[0]) || '';
-  STATE.session = [];
-  $('#cap-sponsor').textContent = trial.sponsor;
-  $('#cap-trial').textContent = trial.name;
-  $('#cap-title').textContent = trial.sponsor + ' · ' + trial.crop;
-  updateSessionChip();
-  $('#co-session').textContent = `${trial.sponsor.toUpperCase()} · ${trial.name}`;
-  $('#co-count').textContent = '0 captured';
-  $('#thumb-strip').innerHTML = '';
-  showView('capture');
-  await startCamera();
-  getPosition().then(async (p) => {
-    STATE.position = p;
-    if (p) {
-      $('#co-gps').textContent = `📍 ${p.lat.toFixed(5)}, ${p.lng.toFixed(5)} (±${Math.round(p.acc)}m)`;
-      // refresh weather on arrival
-      const w = await fetchWeather(p.lat, p.lng);
-      if (w) STATE.weather = w;
+    // Recent trials
+    const recent = $('#recentTrials');
+    recent.innerHTML = '';
+    if (trials.length === 0) {
+      recent.append(h('div', { class: 'card compact' }, h('p', { class: 'small muted', style: 'margin:0' }, 'No trials yet.')));
     } else {
-      $('#co-gps').textContent = '📍 GPS unavailable';
+      for (const t of trials.slice(0, 5)) recent.append(renderTrialItem(t));
     }
-  });
-}
+  }
 
-function updateSessionChip() {
-  const label = STATE.activeTiming ? `${STATE.activeTiming} · Rep ${STATE.activeRep}` : `Rep ${STATE.activeRep}`;
-  $('#cap-folder').textContent = label;
-}
+  function renderTrialItem(t) {
+    const upcoming = TrialModel.upcomingEvaluations(t, { lookback: 0, lookahead: 30 });
+    const next = upcoming[0];
+    return h('div', { class: 'trial-item', onclick: () => openTrial(t.id) },
+      h('div', { class: 'body' },
+        h('h4', {}, t.name),
+        h('div', { class: 'sub' }, `${t.sponsor}${t.crop ? ' · ' + t.crop : ''}${t.applications?.length ? ' · ' + t.applications.length + ' app' + (t.applications.length > 1 ? 's' : '') : ''}`),
+      ),
+      next ? h('div', { class: 'badge' + (next.daysUntil <= 2 ? ' due' : '') }, `${next.daaLabel} · ${fmtRelDate(next.date)}`) : null,
+    );
+  }
 
-async function onShutter() {
-  const btn = $('#btn-shutter'); btn.disabled = true;
-  try {
-    const blob = await snapPhoto();
-    if (!blob) return;
-    const ts = Date.now();
-    const trial = STATE.activeTrial;
-    const plot = $('#meta-plot').value.trim();
-    const filename = `${safe(trial.sponsor)}_${safe(trial.name)}_${STATE.activeTiming || ''}_Rep${STATE.activeRep}${plot?'_P'+safe(plot):''}_${new Date(ts).toISOString().replace(/[:.]/g,'-')}.jpg`;
+  /* ========== TRIALS LIST ========== */
+  function renderTrials() {
+    const trials = Manifest.allTrials();
+    const list = $('#trialsList');
+    list.innerHTML = '';
+    if (trials.length === 0) {
+      list.append(h('div', { class: 'card' }, h('p', { class: 'small muted' }, 'No trials yet. Tap + New to create your first.')));
+      return;
+    }
+    for (const t of trials) list.append(renderTrialItem(t));
+  }
+
+  /* ========== TRIAL CREATION / EDIT ========== */
+  function newTrial() {
+    const trial = TrialModel.create({ name: '', sponsor: '', crop: '', datePlanted: todayISO() });
+    openTrialWizard(trial, true);
+  }
+  function editTrial() {
+    const trial = Manifest.getTrial(ctx.trialId);
+    if (trial) openTrialWizard(trial, false);
+  }
+
+  function openTrialWizard(trial, isNew) {
+    // Multi-step wizard rendered into the sheet
+    const steps = ['basics', 'applications', 'plots', 'treatments'];
+    let step = 0;
+    const working = JSON.parse(JSON.stringify(trial));  // deep copy
+
+    function render() {
+      const content = $('#sheetContent');
+      content.innerHTML = '';
+      content.append(
+        h('div', { class: 'sheet-title' },
+          h('h3', {}, (isNew ? 'New trial' : 'Edit trial') + ' · Step ' + (step + 1) + '/' + steps.length),
+          h('button', { class: 'sheet-close', onclick: closeSheet }, '×'),
+        ),
+        h('div', { class: 'progress-bar' }, h('div', { class: 'fill', style: { width: ((step + 1) / steps.length * 100) + '%' } })),
+      );
+      if (step === 0) content.append(renderBasicsStep(working));
+      else if (step === 1) content.append(renderApplicationsStep(working));
+      else if (step === 2) content.append(renderPlotsStep(working));
+      else content.append(renderTreatmentsStep(working, render));
+
+      content.append(h('div', { style: 'height:14px' }));
+      const btns = h('div', { class: 'btn-row' });
+      if (step > 0) btns.append(h('button', { class: 'btn', onclick: () => { step--; render(); } }, 'Back'));
+      if (step < steps.length - 1) {
+        btns.append(h('button', { class: 'btn btn-primary', onclick: () => {
+          if (!validateStep(working, step)) return;
+          step++; render();
+        } }, 'Continue'));
+      } else {
+        btns.append(h('button', { class: 'btn btn-primary', onclick: async () => {
+          if (!validateStep(working, step)) return;
+          TrialModel.ensurePlotMap(working);
+          await Manifest.saveTrial(working);
+          closeSheet();
+          ctx.trialId = working.id;
+          go('trial');
+          toast('Trial saved', 'success');
+        } }, 'Save trial'));
+      }
+      content.append(btns);
+      if (!isNew) {
+        content.append(h('div', { style: 'height:10px' }));
+        content.append(h('button', { class: 'btn btn-ghost btn-block', style: 'color:#A83232', onclick: () => confirmDeleteTrial(working.id) }, 'Delete trial'));
+      }
+    }
+    openSheet();
+    render();
+  }
+
+  function validateStep(t, step) {
+    if (step === 0) {
+      if (!t.name.trim()) { toast('Trial name is required', 'error'); return false; }
+      if (!t.sponsor.trim()) { toast('Sponsor is required', 'error'); return false; }
+    }
+    return true;
+  }
+
+  function renderBasicsStep(t) {
+    const box = h('div');
+    box.append(
+      h('label', { class: 'field' },
+        h('span', { class: 'l' }, 'Trial name'),
+        Object.assign(h('input', { type: 'text', placeholder: 'e.g. Soybean Residual Efficacy 2026' }), { value: t.name, oninput: e => t.name = e.target.value }),
+      ),
+      h('label', { class: 'field' },
+        h('span', { class: 'l' }, 'Industry partner / sponsor'),
+        Object.assign(h('input', { type: 'text', placeholder: 'e.g. Bayer, BASF, Corteva' }), { value: t.sponsor, oninput: e => t.sponsor = e.target.value }),
+      ),
+      h('label', { class: 'field' },
+        h('span', { class: 'l' }, 'Crop'),
+        Object.assign(h('input', { type: 'text', placeholder: 'e.g. Soybean, Popcorn, Edamame' }), { value: t.crop || '', oninput: e => t.crop = e.target.value }),
+      ),
+      h('label', { class: 'field' },
+        h('span', { class: 'l' }, 'Date planted'),
+        Object.assign(h('input', { type: 'date' }), { value: t.datePlanted || '', oninput: e => t.datePlanted = e.target.value }),
+      ),
+    );
+    return box;
+  }
+
+  function renderApplicationsStep(t) {
+    const box = h('div');
+    box.append(h('p', { class: 'small muted' }, 'Add each application timing with the date it was (or will be) applied. Evaluation intervals are days after application (DAA).'));
+    const list = h('div');
+    function redraw() {
+      list.innerHTML = '';
+      t.applications.forEach((app, i) => {
+        list.append(h('div', { class: 'card compact' },
+          h('div', { class: 'row between' },
+            h('div', {},
+              h('div', { class: 'xs' }, 'Application ' + app.id),
+              h('div', {}, app.label || ''),
+            ),
+            h('button', { class: 'btn btn-ghost', style: 'color:#A83232;padding:4px 8px;min-height:32px', onclick: () => { t.applications.splice(i, 1); redraw(); } }, 'Remove'),
+          ),
+          h('div', { style: 'height:6px' }),
+          h('label', { class: 'field' },
+            h('span', { class: 'l' }, 'Label'),
+            Object.assign(h('input', { type: 'text', placeholder: 'PRE, POST, Lay-by, etc.' }), { value: app.label, oninput: e => app.label = e.target.value }),
+          ),
+          h('label', { class: 'field' },
+            h('span', { class: 'l' }, 'Date applied'),
+            Object.assign(h('input', { type: 'date' }), { value: app.dateApplied || '', oninput: e => app.dateApplied = e.target.value }),
+          ),
+          h('label', { class: 'field' },
+            h('span', { class: 'l' }, 'Evaluation intervals (DAA, comma-separated)'),
+            Object.assign(h('input', { type: 'text', placeholder: '7, 14, 21, 28' }), {
+              value: (app.intervals || []).join(', '),
+              oninput: e => app.intervals = e.target.value.split(',').map(s => parseInt(s.trim(), 10)).filter(n => n > 0 && n < 500),
+            }),
+          ),
+          renderUpcomingChips(app),
+        ));
+      });
+    }
+    function renderUpcomingChips(app) {
+      if (!app.dateApplied || !app.intervals?.length) return null;
+      const chips = h('div', { class: 'chip-row', style: 'margin-top:4px' });
+      for (const d of app.intervals) {
+        chips.append(h('span', { class: 'chip small', style: 'cursor:default' }, `${d} DAA → ${fmtDate(addDays(app.dateApplied, d))}`));
+      }
+      return chips;
+    }
+    box.append(list);
+    box.append(h('button', { class: 'btn btn-block', onclick: () => { TrialModel.addApplication(t, { label: 'Application ' + (t.applications.length + 1), dateApplied: '', intervals: [7, 14, 21, 28] }); redraw(); } }, '+ Add application'));
+    redraw();
+    return box;
+  }
+
+  function renderPlotsStep(t) {
+    const box = h('div');
+    box.append(h('p', { class: 'small muted' }, 'Configure how plots are numbered. FieldTrack auto-increments during capture so you never type a plot number in the field.'));
+    box.append(
+      h('div', { class: 'grid-2' },
+        h('label', { class: 'field' },
+          h('span', { class: 'l' }, 'Number of reps'),
+          Object.assign(h('input', { type: 'number', min: 1, max: 12 }), { value: t.reps, oninput: e => { t.reps = Math.max(1, parseInt(e.target.value || '1', 10)); rebuildStarts(); } }),
+        ),
+        h('label', { class: 'field' },
+          h('span', { class: 'l' }, 'Plots per rep'),
+          Object.assign(h('input', { type: 'number', min: 1, max: 100 }), { value: t.plotsPerRep, oninput: e => t.plotsPerRep = Math.max(1, parseInt(e.target.value || '1', 10)) }),
+        ),
+      ),
+    );
+    const repStarts = h('div');
+    function rebuildStarts() {
+      repStarts.innerHTML = '';
+      repStarts.append(h('div', { class: 'xs', style: 'margin-bottom:4px' }, 'Starting plot number for each rep'));
+      const grid = h('div', { class: 'grid-2' });
+      for (let r = 1; r <= t.reps; r++) {
+        if (!t.plotStartByRep[r]) t.plotStartByRep[r] = r * 100 + 1;
+        grid.append(h('label', { class: 'field' },
+          h('span', { class: 'l' }, `Rep ${r}`),
+          Object.assign(h('input', { type: 'number', min: 1 }), { value: t.plotStartByRep[r], oninput: e => t.plotStartByRep[r] = parseInt(e.target.value || '1', 10) }),
+        ));
+      }
+      repStarts.append(grid);
+    }
+    rebuildStarts();
+    box.append(repStarts);
+    return box;
+  }
+
+  function renderTreatmentsStep(t, onChange) {
+    TrialModel.ensurePlotMap(t);
+    const box = h('div');
+    box.append(h('p', { class: 'small muted' }, 'Assign treatment and herbicide to each plot. This info travels with every photo automatically — you won\'t be asked for it in the field.'));
+    for (let r = 1; r <= t.reps; r++) {
+      const plots = TrialModel.plotsInRep(t, r);
+      const repBox = h('div', { class: 'card compact', style: 'margin-bottom:8px' });
+      repBox.append(h('div', { class: 'xs', style: 'margin-bottom:6px' }, `Rep ${r} · Plots ${plots[0]}–${plots[plots.length - 1]}`));
+      const grid = h('div', { class: 'plot-map' });
+      for (const p of plots) {
+        const meta = t.plotMap[p] || { treatment: '', herbicide: '' };
+        const cell = h('div', { class: 'plot-cell' + (meta.treatment ? '' : ' unassigned'), onclick: () => editPlot(t, p, onChange) });
+        cell.append(h('div', { class: 'p' }, p));
+        cell.append(h('div', { class: 't' }, meta.treatment || 'Tap to assign'));
+        grid.append(cell);
+      }
+      repBox.append(grid);
+      box.append(repBox);
+    }
+    return box;
+  }
+
+  function editPlot(trial, plot, onDone) {
+    const meta = { ...(trial.plotMap[plot] || { treatment: '', herbicide: '', notes: '' }) };
+    // Open a secondary sheet layered on top — simpler: reuse existing sheet
+    openSheet();
+    const content = $('#sheetContent');
+    content.innerHTML = '';
+    content.append(
+      h('div', { class: 'sheet-title' },
+        h('h3', {}, `Plot ${plot}`),
+        h('button', { class: 'sheet-close', onclick: () => { closeSheet(); if (onDone) onDone(); } }, '×'),
+      ),
+      h('label', { class: 'field' },
+        h('span', { class: 'l' }, 'Treatment'),
+        Object.assign(h('input', { type: 'text', placeholder: 'e.g. T3, Check, UTC' }), { value: meta.treatment, oninput: e => meta.treatment = e.target.value }),
+      ),
+      h('label', { class: 'field' },
+        h('span', { class: 'l' }, 'Herbicide / product'),
+        Object.assign(h('input', { type: 'text', placeholder: 'e.g. Valor SX 2 oz + Warrant 48 oz' }), { value: meta.herbicide, oninput: e => meta.herbicide = e.target.value }),
+      ),
+      h('label', { class: 'field' },
+        h('span', { class: 'l' }, 'Notes (optional)'),
+        Object.assign(h('textarea', { placeholder: 'Plot-level notes' }), { value: meta.notes, oninput: e => meta.notes = e.target.value }),
+      ),
+      h('button', { class: 'btn btn-primary btn-block', onclick: () => {
+        trial.plotMap[plot] = meta;
+        closeSheet();
+        if (onDone) onDone();   // re-render treatments step in place
+      } }, 'Save'),
+    );
+  }
+
+  function confirmDeleteTrial(id) {
+    openSheet();
+    const content = $('#sheetContent');
+    content.innerHTML = '';
+    content.append(
+      h('div', { class: 'sheet-title' },
+        h('h3', {}, 'Delete this trial?'),
+        h('button', { class: 'sheet-close', onclick: closeSheet }, '×'),
+      ),
+      h('p', {}, 'This removes the trial from all devices signed in to this account. Photos already uploaded to Drive stay where they are; pending captures on this device will be lost.'),
+      h('div', { class: 'btn-row' },
+        h('button', { class: 'btn', onclick: closeSheet }, 'Cancel'),
+        h('button', { class: 'btn btn-danger', onclick: async () => {
+          await Manifest.deleteTrial(id);
+          closeSheet();
+          go('trials');
+          toast('Trial deleted', 'success');
+        } }, 'Delete'),
+      ),
+    );
+  }
+
+  /* ========== TRIAL DETAIL ========== */
+  function openTrial(id) { ctx.trialId = id; go('trial'); }
+
+  function renderTrialDetail() {
+    const t = Manifest.getTrial(ctx.trialId);
+    if (!t) { go('trials'); return; }
+    $('#trialDetailName').textContent = t.name;
+    $('#trialDetailSub').textContent = t.sponsor + (t.crop ? ' · ' + t.crop : '');
+    const body = $('#trialDetailBody');
+    body.innerHTML = '';
+
+    // Key dates card
+    const datesCard = h('div', { class: 'card' });
+    datesCard.append(h('h3', {}, 'Key dates'));
+    const dateRows = [];
+    if (t.datePlanted) dateRows.push(['Planted', fmtDate(t.datePlanted)]);
+    for (const app of t.applications || []) {
+      if (app.dateApplied) dateRows.push([`${app.label} applied`, fmtDate(app.dateApplied)]);
+    }
+    const upcoming = TrialModel.upcomingEvaluations(t, { lookback: 0, lookahead: 60 });
+    if (upcoming.length) {
+      const next = upcoming[0];
+      dateRows.push(['Next evaluation', `${next.daaLabel} · ${fmtDate(next.date)} (${fmtRelDate(next.date)})`]);
+    }
+    for (const [k, v] of dateRows) {
+      datesCard.append(h('div', { style: 'display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line);font-size:14px' },
+        h('span', { class: 'muted' }, k),
+        h('span', { style: 'font-weight:500' }, v),
+      ));
+    }
+    if (dateRows.length === 0) datesCard.append(h('p', { class: 'small muted' }, 'No dates set. Tap Edit to add planting and application dates.'));
+    body.append(datesCard);
+
+    // Applications summary
+    if (t.applications?.length) {
+      const appsCard = h('div', { class: 'card' });
+      appsCard.append(h('h3', {}, 'Applications'));
+      for (const app of t.applications) {
+        appsCard.append(h('div', { style: 'padding:8px 0;border-bottom:1px solid var(--line)' },
+          h('div', { style: 'font-weight:600' }, `Application ${app.id}: ${app.label}`),
+          h('div', { class: 'small muted' }, (app.dateApplied ? 'Applied ' + fmtDate(app.dateApplied) : 'Date not set') + ' · Intervals: ' + (app.intervals?.join(', ') || 'none') + ' DAA'),
+        ));
+      }
+      body.append(appsCard);
+    }
+
+    // Plot plan summary
+    body.append(h('div', { class: 'card' },
+      h('h3', {}, 'Plot plan'),
+      h('p', { class: 'small' }, `${t.reps} reps · ${t.plotsPerRep} plots per rep · ${t.reps * t.plotsPerRep} plots total`),
+      (function () {
+        const assigned = Object.values(t.plotMap || {}).filter(m => m.treatment).length;
+        const total = t.reps * t.plotsPerRep;
+        const pct = total ? Math.round(assigned / total * 100) : 0;
+        return h('div', {},
+          h('div', { class: 'progress-bar' }, h('div', { class: 'fill', style: { width: pct + '%' } })),
+          h('div', { class: 'small muted' }, `${assigned} of ${total} plots have treatments assigned`),
+        );
+      })(),
+    ));
+
+    // Big capture button
+    const hasApps = t.applications?.length > 0;
+    body.append(h('button', {
+      class: 'btn btn-primary btn-big btn-block',
+      style: 'margin-top:12px',
+      disabled: !hasApps,
+      onclick: () => { if (hasApps) { ctx.trialId = t.id; go('capture_setup'); } },
+    }, hasApps ? 'Start capture session' : 'Add an application first'));
+  }
+
+  /* ========== CAPTURE SETUP ========== */
+  function renderCaptureSetup() {
+    const t = Manifest.getTrial(ctx.trialId);
+    if (!t) { go('trials'); return; }
+    $('#captureSetupName').textContent = t.name;
+    const body = $('#captureSetupBody');
+    body.innerHTML = '';
+
+    const session = { trialId: t.id, appId: null, daa: null, rep: null };
+
+    body.append(h('div', { class: 'card' },
+      h('h3', {}, '1. Application timing'),
+      (function () {
+        const row = h('div', { class: 'chip-row' });
+        for (const app of t.applications) {
+          row.append(h('button', {
+            class: 'chip', 'data-appid': app.id,
+            onclick: e => { session.appId = app.id; update(); }
+          }, `App ${app.id} · ${app.label}`));
+        }
+        return row;
+      })(),
+    ));
+
+    const step2 = h('div', { class: 'card', id: '_step2' });
+    body.append(step2);
+    const step3 = h('div', { class: 'card', id: '_step3' });
+    body.append(step3);
+    const step4Wrap = h('div', { id: '_step4' });
+    body.append(step4Wrap);
+
+    function update() {
+      // 2. Eval timing chips
+      step2.innerHTML = '';
+      if (!session.appId) { step2.style.display = 'none'; }
+      else {
+        step2.style.display = '';
+        step2.append(h('h3', {}, '2. Evaluation timing'));
+        const app = t.applications.find(a => a.id === session.appId);
+        const row = h('div', { class: 'chip-row' });
+        for (const d of app.intervals || []) {
+          const date = app.dateApplied ? addDays(app.dateApplied, d) : null;
+          row.append(h('button', {
+            class: 'chip' + (session.daa === d ? ' active' : ''),
+            onclick: () => { session.daa = d; session.evalDate = date; update(); },
+          }, `${d} DAA${date ? ' · ' + fmtDate(date) : ''}`));
+        }
+        step2.append(row);
+      }
+      // Highlight active app chip
+      $$('#_step2 .chip.active').forEach(c => c.classList.remove('active'));
+      $$('[data-appid]').forEach(c => c.classList.toggle('active', c.dataset.appid === session.appId));
+
+      // 3. Rep chips
+      step3.innerHTML = '';
+      if (!session.daa) { step3.style.display = 'none'; }
+      else {
+        step3.style.display = '';
+        step3.append(h('h3', {}, '3. Replication'));
+        const row = h('div', { class: 'chip-row' });
+        for (let r = 1; r <= t.reps; r++) {
+          row.append(h('button', {
+            class: 'chip' + (session.rep === r ? ' active' : ''),
+            onclick: () => { session.rep = r; update(); },
+          }, `Rep ${r}`));
+        }
+        step3.append(row);
+      }
+
+      // 4. Start button
+      step4Wrap.innerHTML = '';
+      if (session.appId && session.daa && session.rep) {
+        const plots = TrialModel.plotsInRep(t, session.rep);
+        step4Wrap.append(h('div', { class: 'card glow' },
+          h('h3', {}, 'Ready to capture'),
+          h('p', { class: 'small' }, `Rep ${session.rep}, starting at plot ${plots[0]}. You'll photograph ${plots.length} plots in this session.`),
+          h('button', { class: 'btn btn-primary btn-big btn-block', onclick: () => {
+            ctx.session = { ...session, plots, plotIdx: 0 };
+            go('capture');
+          } }, `Start at plot ${plots[0]} →`),
+        ));
+      }
+    }
+    update();
+  }
+
+  /* ========== CAPTURE (rapid-fire plot loop) ========== */
+  function renderCapture() {
+    const s = ctx.session;
+    if (!s) { go('trials'); return; }
+    const t = Manifest.getTrial(s.trialId);
+    if (!t) { go('trials'); return; }
+
+    if (s.plotIdx >= s.plots.length) { return renderRepComplete(t, s); }
+
+    const plot = s.plots[s.plotIdx];
+    const plotMeta = t.plotMap?.[plot] || {};
+
+    $('#captureSub').textContent = `${t.name} · App ${s.appId} · ${s.daa} DAA · Rep ${s.rep}`;
+    $('#captureTitle').textContent = `Plot ${plot}`;
+
+    const body = $('#captureBody');
+    body.innerHTML = '';
+
+    // Plot info card
+    body.append(h('div', { class: 'capture-card' },
+      h('div', { class: 'xs' }, `${plotMeta.treatment || 'Untreated'} · ${s.daa} DAA`),
+      h('div', { class: 'plot-big' }, plot),
+      h('div', { class: 'meta' },
+        plotMeta.herbicide ? h('div', {}, plotMeta.herbicide) : null,
+        plotMeta.notes ? h('div', {}, plotMeta.notes) : null,
+        h('div', { style: 'margin-top:6px;color:rgba(255,255,255,0.65);font-size:12.5px' }, `Plot ${s.plotIdx + 1} of ${s.plots.length} in Rep ${s.rep}`),
+      ),
+    ));
+
+    // Progress
+    body.append(h('div', { class: 'progress-bar' }, h('div', { class: 'fill', style: { width: (s.plotIdx / s.plots.length * 100) + '%' } })));
+
+    // Shutter
+    body.append(h('div', { class: 'capture-actions' },
+      h('button', { class: 'shutter big', onclick: () => triggerCamera(t, s, plot) }, '📷 Capture'),
+      h('button', { class: 'btn btn-ghost', onclick: () => skipPlot(s) }, 'Skip this plot'),
+    ));
+
+    // Optional notes (per-shot, not required)
+    const notesDetails = h('details', { style: 'margin-top:12px' });
+    notesDetails.append(h('summary', { style: 'font-size:13px;color:var(--ink-3);cursor:pointer;padding:6px 0' }, 'Add capture note (optional)'));
+    const ta = h('textarea', { placeholder: 'Any unusual observation for this specific photo…', id: 'captureNotes' });
+    notesDetails.append(ta);
+    body.append(notesDetails);
+  }
+
+  function renderRepComplete(t, s) {
+    const body = $('#captureBody');
+    body.innerHTML = '';
+    $('#captureTitle').textContent = `Rep ${s.rep} complete`;
+    body.append(h('div', { class: 'card glow' },
+      h('h3', {}, `✓ Rep ${s.rep} finished`),
+      h('p', { class: 'small' }, `Captured ${s.plots.length} plots at ${s.daa} DAA.`),
+    ));
+    // Offer next rep
+    if (s.rep < t.reps) {
+      body.append(h('button', { class: 'btn btn-primary btn-big btn-block', onclick: () => {
+        const nextRep = s.rep + 1;
+        const plots = TrialModel.plotsInRep(t, nextRep);
+        ctx.session = { ...s, rep: nextRep, plots, plotIdx: 0 };
+        renderCapture();
+      } }, `Continue to Rep ${s.rep + 1} →`));
+    }
+    body.append(h('button', { class: 'btn btn-block', style: 'margin-top:10px', onclick: () => go('trial') }, 'Back to trial'));
+  }
+
+  function skipPlot(s) {
+    s.plotIdx++;
+    renderCapture();
+  }
+
+  function confirmExitCapture() {
+    openSheet();
+    const content = $('#sheetContent');
+    content.innerHTML = '';
+    content.append(
+      h('div', { class: 'sheet-title' },
+        h('h3', {}, 'Leave capture session?'),
+        h('button', { class: 'sheet-close', onclick: closeSheet }, '×'),
+      ),
+      h('p', { class: 'small' }, 'Photos you already took are safe in the sync queue. You can come back to this rep later.'),
+      h('div', { class: 'btn-row' },
+        h('button', { class: 'btn', onclick: closeSheet }, 'Keep capturing'),
+        h('button', { class: 'btn btn-primary', onclick: () => { closeSheet(); go('trial'); } }, 'Leave'),
+      ),
+    );
+  }
+
+  /* ========== SYNC VIEW ========== */
+  async function renderSync() {
+    const body = $('#syncBody');
+    body.innerHTML = '<div class="sync-indicator"><span class="spinner"></span> Loading…</div>';
+    const all = await PhotoStore.all();
+    body.innerHTML = '';
+    const pending = all.filter(p => p.status === 'pending' || p.status === 'uploading');
+    const errors = all.filter(p => p.status === 'error');
+    const synced = all.filter(p => p.status === 'synced');
+
+    body.append(h('div', { class: 'stat-grid' },
+      h('div', { class: 'stat pending' }, h('div', { class: 'n' }, pending.length), h('div', { class: 'l' }, 'Pending')),
+      h('div', { class: 'stat due' }, h('div', { class: 'n' }, errors.length), h('div', { class: 'l' }, 'Errors')),
+      h('div', { class: 'stat' }, h('div', { class: 'n' }, synced.length), h('div', { class: 'l' }, 'Synced')),
+    ));
+
+    if (!Sync.canSyncNow()) {
+      body.append(h('div', { class: 'banner warn', style: 'margin-top:14px' }, navigator.onLine ? 'Waiting for Wi-Fi (per settings).' : 'Offline. Uploads will resume when reconnected.'));
+    }
+
+    // Show pending list
+    if (pending.length) {
+      body.append(h('h3', { style: 'margin-top:14px' }, 'Waiting to upload'));
+      for (const p of pending.slice(0, 30)) {
+        const t = Manifest.getTrial(p.trialId);
+        body.append(h('div', { class: 'trial-item' },
+          h('div', { class: 'body' },
+            h('h4', {}, `Plot ${p.plot} · Rep ${p.rep}`),
+            h('div', { class: 'sub' }, `${t?.name || 'Unknown trial'} · App ${p.appId} · ${p.daa} DAA`),
+          ),
+          h('div', { class: 'badge' }, p.status === 'uploading' ? 'Uploading' : 'Queued'),
+        ));
+      }
+    }
+    if (errors.length) {
+      body.append(h('h3', { style: 'margin-top:14px;color:#A83232' }, 'Errors'));
+      for (const p of errors.slice(0, 10)) {
+        body.append(h('div', { class: 'card danger compact' },
+          h('div', { style: 'font-weight:600' }, `Plot ${p.plot} · Rep ${p.rep}`),
+          h('div', { class: 'small' }, p.errorMessage || 'Unknown error'),
+          h('button', { class: 'btn btn-ghost', style: 'padding:4px 8px;min-height:32px;margin-top:6px', onclick: async () => { await PhotoStore.update(p.id, { status: 'pending', errorMessage: null }); Sync.runNow(); renderSync(); } }, 'Retry'),
+        ));
+      }
+    }
+    if (!pending.length && !errors.length) {
+      body.append(h('div', { class: 'card compact', style: 'margin-top:14px' }, h('p', { class: 'small muted', style: 'margin:0' }, 'All caught up. Nothing waiting to upload.')));
+    }
+  }
+
+  /* ========== SETTINGS ========== */
+  async function renderSettings() {
+    const body = $('#settingsBody');
+    body.innerHTML = '';
+    const prefs = window._settings || {};
+    const email = Auth.email || '(unknown)';
+    body.append(h('div', { class: 'card' },
+      h('h3', {}, 'Account'),
+      h('div', { class: 'small' }, email),
+      h('div', { class: 'small muted', style: 'margin:4px 0 10px' }, Auth.isSignedIn ? 'Connected to Google Drive' : 'Not connected'),
+      h('div', { class: 'btn-row' },
+        h('button', { class: 'btn', onclick: () => { Auth.refreshSilent(); toast('Refreshing…'); } }, 'Refresh token'),
+        h('button', { class: 'btn btn-ghost', style: 'color:#A83232', onclick: () => Auth.signOut() }, 'Sign out'),
+      ),
+    ));
+
+    // Sync preferences
+    body.append(h('div', { class: 'card' },
+      h('h3', {}, 'Sync preferences'),
+      h('label', { style: 'display:flex;justify-content:space-between;align-items:center;padding:6px 0' },
+        h('span', {}, 'Wi-Fi only upload'),
+        (function () {
+          const lbl = h('label', { class: 'toggle' });
+          const inp = h('input', { type: 'checkbox' });
+          if (prefs.wifiOnly) inp.checked = true;
+          inp.onchange = async e => { prefs.wifiOnly = e.target.checked; window._settings = prefs; await IDB.set('settings', 'prefs', prefs); };
+          lbl.append(inp, h('span', { class: 'slider' }));
+          return lbl;
+        })(),
+      ),
+      h('div', { class: 'small muted' }, 'On iPhone, Wi-Fi detection is limited; when this is on, uploads will only run when manually triggered.'),
+    ));
+
+    // Storage
+    let storage = { used: 0, quota: 0 };
+    if (navigator.storage?.estimate) storage = await navigator.storage.estimate();
+    body.append(h('div', { class: 'card' },
+      h('h3', {}, 'Storage'),
+      h('div', { class: 'small' }, `${(storage.usage / 1e6).toFixed(1)} MB used of ${(storage.quota / 1e6).toFixed(0)} MB available`),
+      h('div', { class: 'progress-bar' }, h('div', { class: 'fill', style: { width: (storage.usage / storage.quota * 100) + '%' } })),
+    ));
+
+    // About
+    body.append(h('div', { class: 'card compact' },
+      h('div', { class: 'small muted' }, `FieldTrack v3.0 · Schema ${CONFIG.SCHEMA_VERSION}`),
+    ));
+  }
+
+  return {
+    go, fabAction, newTrial, editTrial, openTrial,
+    confirmExitCapture,
+    renderDashboard, renderTrials, renderTrialDetail, renderSync, renderSettings,
+    get ctx() { return ctx; },
+  };
+})();
+
+/* Sheet helpers */
+function openSheet() { $('#sheet').classList.add('show'); document.body.style.overflow = 'hidden'; }
+function closeSheet() { $('#sheet').classList.remove('show'); document.body.style.overflow = ''; }
+
+/* ---------- Capture module (camera trigger + photo save) ---------- */
+const Capture = (() => {
+  let inProgress = false;
+
+  async function trigger(trial, session, plot) {
+    if (inProgress) return;
+    inProgress = true;
+    // Open native camera via hidden file input (gives MAX resolution; getUserMedia caps at video-stream size)
+    const input = $('#cameraInput');
+    input.value = '';
+    const onChange = async (e) => {
+      input.removeEventListener('change', onChange);
+      const file = e.target.files?.[0];
+      inProgress = false;
+      if (!file) return;
+      await savePhoto(trial, session, plot, file);
+    };
+    input.addEventListener('change', onChange);
+    input.click();
+    // Safety: if user cancels (no change fires), reset flag after short delay on focus return
+    setTimeout(() => { inProgress = false; }, 1200);
+  }
+
+  async function savePhoto(trial, session, plot, file) {
+    const notesEl = $('#captureNotes');
+    const notes = notesEl ? notesEl.value.trim() : '';
+
+    // Pre-fetch GPS (quick) and weather (non-blocking)
+    const gps = await getGPS();
+    const weather = gps ? await getWeather(gps.lat, gps.lng) : null;
+
+    const evalDate = session.evalDate || null;
     const photo = {
-      id: uid(),
       trialId: trial.id,
       sponsor: trial.sponsor,
-      trialName: trial.name,
-      crop: trial.crop,
-      rep: STATE.activeRep,
-      timing: STATE.activeTiming,
-      capturedAt: ts,
-      filename,
-      blob,
-      gps: STATE.position,
-      weather: STATE.weather,
-      meta: {
-        plot: $('#meta-plot').value.trim(),
-        treatment: $('#meta-treatment').value.trim(),
-        herbicide: $('#meta-herbicide').value.trim(),
-        notes: $('#meta-notes').value.trim()
-      },
-      status: 'pending'
+      appId: session.appId,
+      daa: session.daa,
+      evalDate,
+      rep: session.rep,
+      plot,
+      notes,
+      gps, weather,
+      capturedAt: nowISO(),
+      blob: file,   // stored directly as Blob — IDB handles this
+      status: 'pending',
     };
-    await IDB.put('photos', photo);
-    STATE.session.unshift(photo);
-    renderThumbStrip();
-    $('#co-count').textContent = `${STATE.session.length} captured`;
-    // Haptic-ish feedback
-    if (navigator.vibrate) navigator.vibrate(12);
-    // Attempt sync if conditions allow
-    onMaybeSync();
-  } catch (e) {
-    toast('Capture failed: ' + (e.message || e), 'error');
-  } finally {
-    btn.disabled = false;
-  }
-}
+    await PhotoStore.add(photo);
+    toast(`Plot ${plot} saved`, 'success');
 
-function renderThumbStrip() {
-  const host = $('#thumb-strip');
-  host.innerHTML = '';
-  for (const p of STATE.session.slice(0, 20)) {
-    const div = document.createElement('div');
-    div.className = 'thumb' + (p.status === 'synced' ? ' synced' : '');
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(p.blob);
-    img.onload = () => URL.revokeObjectURL(img.src);
-    div.appendChild(img);
-    const badge = document.createElement('div');
-    badge.className = 'thumb-badge';
-    div.appendChild(badge);
-    host.appendChild(div);
-  }
-}
+    // Advance to next plot in the rep
+    session.plotIdx++;
+    UI.renderTrialDetail && null;  // no-op
+    UI.go('capture');
 
-/* --------------------------------------------------------------
-   VIEWS / NAV
--------------------------------------------------------------- */
-function showView(name) {
-  $$('.view').forEach(v => v.classList.toggle('active', v.dataset.view === name));
-  $$('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.nav === name));
-  $('#bottomnav').style.display = (name === 'auth') ? 'none' : 'grid';
-  window.scrollTo(0,0);
-  if (name !== 'capture') stopCamera();
-  if (name === 'dashboard') renderDashboard();
-  if (name === 'trials') renderTrialsView();
-  if (name === 'sync') renderSyncView();
-  if (name === 'settings') renderSettings();
-}
-
-$$('.navbtn').forEach(b => b.addEventListener('click', () => showView(b.dataset.nav)));
-
-/* --------------------------------------------------------------
-   DASHBOARD RENDER
--------------------------------------------------------------- */
-function greetingText() {
-  const h = new Date().getHours();
-  const name = STATE.user && (STATE.user.given_name || STATE.user.name) ? (STATE.user.given_name || STATE.user.name.split(' ')[0]) : '';
-  if (h < 12) return `Good morning${name ? ', ' + name : ''}.`;
-  if (h < 18) return `Good afternoon${name ? ', ' + name : ''}.`;
-  return `Good evening${name ? ', ' + name : ''}.`;
-}
-
-async function renderDashboard() {
-  $('#today-date').textContent = new Date().toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
-  $('#greeting').textContent = greetingText();
-
-  const trials = await IDB.all('trials');
-  const activeTrials = trials.filter(t => !t.archived);
-  const photos = await IDB.all('photos');
-  const today = new Date(); today.setHours(0,0,0,0);
-  const todayCount = photos.filter(p => p.capturedAt >= today.getTime()).length;
-  const pending = photos.filter(p => p.status !== 'synced').length;
-
-  $('#stat-trials').textContent = activeTrials.length;
-  $('#stat-trials-hint').textContent = activeTrials.length ? `${fmt(photos.length)} photos captured this season` : 'Tap + to add your first trial';
-  $('#stat-today').textContent = todayCount;
-  $('#stat-today-hint').textContent = todayCount ? 'Keep going.' : 'No captures yet';
-  $('#stat-pending').textContent = pending;
-  $('#stat-pending-hint').textContent = pending ? (STATE.online ? (STATE.syncing ? 'Syncing…' : 'Will sync on Wi-Fi') : 'Offline — held safely') : 'All synced';
-  $('#stat-pending-wrap').classList.toggle('warn', pending > 0);
-
-  if (STATE.user) {
-    $('#stat-drive').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;margin-right:4px"><path d="M5 12l5 5L20 7"/></svg>Live`;
-    $('#stat-drive-hint').textContent = STATE.user.email || 'Connected';
-  } else {
-    $('#stat-drive').textContent = '—';
-    $('#stat-drive-hint').textContent = 'Not connected';
+    // Kick off sync
+    Sync.runNow();
   }
 
-  // Hero weather
-  try {
-    if (!STATE.position) STATE.position = await getPosition(4000);
-    if (STATE.position && (!STATE.weather)) {
-      STATE.weather = await fetchWeather(STATE.position.lat, STATE.position.lng);
-    }
-    if (STATE.weather) {
-      $('#hw-temp').textContent = Math.round(STATE.weather.temperature_2m) + '°F';
-      const cond = WEATHER_CODES[STATE.weather.weather_code] || '—';
-      $('#hw-meta').innerHTML = `<b>${cond}</b> · ${Math.round(STATE.weather.relative_humidity_2m)}% humidity · ${Math.round(STATE.weather.wind_speed_10m)} mph wind<br><span style="color:var(--muted-2)">Feels like ${Math.round(STATE.weather.apparent_temperature)}°F</span>`;
-    } else {
-      $('#hw-temp').textContent = '—';
-      $('#hw-meta').textContent = STATE.online ? 'Location or weather unavailable' : 'Offline';
-    }
-  } catch (e) { console.warn('Weather render', e); }
-
-  // Active trials list
-  const host = $('#dash-trial-list');
-  host.innerHTML = '';
-  $('#trials-count').textContent = `${activeTrials.length} active`;
-  if (activeTrials.length === 0) {
-    host.innerHTML = `<div class="empty"><div class="emoji">🌱</div><p>No trials yet. Add one to start capturing.</p><button class="btn btn-primary" id="empty-new-trial">Create first trial</button></div>`;
-    $('#empty-new-trial').onclick = () => promptNewTrial();
-  } else {
-    for (const t of activeTrials.slice(0, 8)) {
-      const count = photos.filter(p => p.trialId === t.id).length;
-      host.appendChild(renderTrialCard(t, count));
-    }
+  function endSession() {
+    UI.go('trial');
   }
 
-  renderStatusStrip();
-}
-
-function renderTrialCard(t, count) {
-  const card = document.createElement('button');
-  card.className = 'trial-card';
-  card.dataset.sponsor = t.sponsor;
-  card.innerHTML = `
-    <div class="tc-accent"></div>
-    <div class="tc-body">
-      <div class="tc-title">${escapeHtml(t.name)}</div>
-      <div class="tc-meta">
-        <span>${escapeHtml(t.sponsor)}</span>
-        <span>${escapeHtml(t.crop || 'Crop')}</span>
-        <span>${t.reps || 4} reps</span>
-      </div>
-    </div>
-    <div class="tc-count">${count}</div>
-    <div class="tc-arrow">›</div>`;
-  card.onclick = () => openTrialActions(t);
-  return card;
-}
-
-function escapeHtml(s){return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-
-/* --------------------------------------------------------------
-   STATUS STRIP
--------------------------------------------------------------- */
-function renderStatusStrip() {
-  const makeStrip = async (hostSelector) => {
-    const host = $(hostSelector);
-    if (!host) return;
-    const pendingCount = (await IDB.all('photos')).filter(p => p.status !== 'synced').length;
-    const netText = STATE.online ? (STATE.wifi === true ? 'Wi-Fi' : STATE.wifi === false ? 'Cellular' : 'Online') : 'Offline';
-    const netClass = STATE.online ? 'on' : 'off';
-    const driveClass = STATE.user ? 'on' : 'off';
-    const pendingClass = pendingCount > 0 ? 'warn' : 'on';
-    const syncText = STATE.syncing ? 'Syncing…' : (pendingCount ? `${pendingCount} pending` : 'All synced');
-    host.innerHTML = `
-      <span class="status-pill ${netClass}"><span class="dot"></span>${netText}</span>
-      <span class="status-pill ${driveClass}"><span class="dot"></span>Drive ${STATE.user ? 'connected' : 'offline'}</span>
-      <span class="status-pill ${pendingClass}"><span class="dot"></span>${syncText}</span>
-      ${STATE.activeTrial ? `<span class="status-pill on"><span class="dot"></span>${escapeHtml(STATE.activeTrial.sponsor)} · ${escapeHtml(STATE.activeTrial.name)}</span>` : ''}
-    `;
-  };
-  makeStrip('#status-strip');
-  makeStrip('#sync-status-strip');
-}
-
-/* --------------------------------------------------------------
-   TRIALS VIEW
--------------------------------------------------------------- */
-async function renderTrialsView() {
-  const trials = await IDB.all('trials');
-  const photos = await IDB.all('photos');
-  const host = $('#all-trial-list');
-  host.innerHTML = '';
-  if (trials.length === 0) {
-    host.innerHTML = `<div class="empty"><div class="emoji">🧪</div><p>No trials defined.</p><button class="btn btn-primary" id="empty-new-trial-2">New trial</button></div>`;
-    $('#empty-new-trial-2').onclick = promptNewTrial;
-    return;
-  }
-  for (const t of trials) {
-    const c = photos.filter(p => p.trialId === t.id).length;
-    host.appendChild(renderTrialCard(t, c));
-  }
-}
-
-function promptNewTrial() {
-  const sponsors = ['Bayer','BASF','Syngenta','Corteva','FMC','Valent','UPL','Nufarm','Other'];
-  overlay(`
-    <h2>New trial</h2>
-    <p>Set up once — photos and metadata will be organized under this structure for the whole season.</p>
-    <div class="form-group"><label>Industry Partner</label>
-      <select id="nt-sponsor">${sponsors.map(s => `<option>${s}</option>`).join('')}</select>
-    </div>
-    <div class="form-group" id="nt-sponsor-other-wrap" style="display:none"><label>Partner name</label>
-      <input type="text" id="nt-sponsor-other" placeholder="Custom partner">
-    </div>
-    <div class="form-group"><label>Trial name</label>
-      <input type="text" id="nt-name" placeholder="e.g., Soybean Residual 2026">
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Crop</label>
-        <select id="nt-crop"><option>Soybean</option><option>Popcorn</option><option>Edamame</option><option>Corn</option><option>Wheat</option><option>Sorghum</option><option>Other</option></select>
-      </div>
-      <div class="form-group"><label>Reps</label>
-        <input type="number" id="nt-reps" value="4" min="1" max="12" inputmode="numeric">
-      </div>
-    </div>
-    <div class="form-group"><label>Evaluation Timings (comma-separated)</label>
-      <input type="text" id="nt-timings" placeholder="14DAA, 21DAA, 28DAA, 35DAA" value="14DAA, 21DAA, 28DAA">
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-secondary btn-full" id="nt-cancel">Cancel</button>
-      <button class="btn btn-primary btn-full" id="nt-save">Create trial</button>
-    </div>
-  `);
-  $('#nt-sponsor').onchange = (e) => { $('#nt-sponsor-other-wrap').style.display = e.target.value === 'Other' ? '' : 'none'; };
-  $('#nt-cancel').onclick = overlayClose;
-  $('#nt-save').onclick = async () => {
-    const sponsorSel = $('#nt-sponsor').value;
-    const sponsor = sponsorSel === 'Other' ? ($('#nt-sponsor-other').value.trim() || 'Other') : sponsorSel;
-    const name = $('#nt-name').value.trim();
-    if (!name) { toast('Trial name required','warn'); return; }
-    const crop = $('#nt-crop').value;
-    const reps = Math.max(1, parseInt($('#nt-reps').value, 10) || 4);
-    const timings = $('#nt-timings').value.split(',').map(s => s.trim()).filter(Boolean);
-    const trial = { id: uid(), sponsor, name, crop, reps, timings, createdAt: Date.now() };
-    await IDB.put('trials', trial);
-    overlayClose();
-    toast('Trial created', 'success');
-    renderDashboard(); renderTrialsView();
-  };
-}
-
-function openTrialActions(trial) {
-  const timingOpts = (trial.timings && trial.timings.length ? trial.timings : ['']).map(t => `<button class="chip" data-timing="${escapeHtml(t)}">${escapeHtml(t||'No timing')}</button>`).join('');
-  const repOpts = Array.from({length: trial.reps || 4}, (_,i) => `<button class="chip" data-rep="${i+1}">Rep ${i+1}</button>`).join('');
-  overlay(`
-    <h2>${escapeHtml(trial.name)}</h2>
-    <p style="color:var(--muted);font-size:13px;margin-bottom:14px">${escapeHtml(trial.sponsor)} · ${escapeHtml(trial.crop)} · ${trial.reps} reps</p>
-
-    <div class="form-group"><label>Evaluation timing</label>
-      <div class="chip-row" id="ta-timings">${timingOpts}</div>
-    </div>
-    <div class="form-group"><label>Replicate</label>
-      <div class="chip-row" id="ta-reps">${repOpts}</div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-secondary btn-full" id="ta-close">Cancel</button>
-      <button class="btn btn-primary btn-full" id="ta-start">Start capture</button>
-    </div>
-    <div style="margin-top:10px"><button class="btn btn-ghost btn-full" id="ta-delete">Archive trial</button></div>
-  `);
-
-  let chosenTiming = (trial.timings && trial.timings[0]) || '';
-  let chosenRep = 1;
-
-  const activateChip = (sel, val, attr) => {
-    $$(sel + ' .chip').forEach(c => c.classList.toggle('active', String(c.dataset[attr]) === String(val)));
-  };
-  activateChip('#ta-timings', chosenTiming, 'timing');
-  activateChip('#ta-reps', chosenRep, 'rep');
-
-  $$('#ta-timings .chip').forEach(c => c.onclick = () => { chosenTiming = c.dataset.timing; activateChip('#ta-timings', chosenTiming, 'timing'); });
-  $$('#ta-reps .chip').forEach(c => c.onclick = () => { chosenRep = Number(c.dataset.rep); activateChip('#ta-reps', chosenRep, 'rep'); });
-
-  $('#ta-close').onclick = overlayClose;
-  $('#ta-start').onclick = () => {
-    overlayClose();
-    startCapture(trial.id, { rep: chosenRep, timing: chosenTiming });
-  };
-  $('#ta-delete').onclick = async () => {
-    if (!confirm('Archive this trial? Photos remain in Drive; you can still see captured counts.')) return;
-    trial.archived = true;
-    await IDB.put('trials', trial);
-    overlayClose();
-    renderDashboard(); renderTrialsView();
-  };
-}
-
-/* --------------------------------------------------------------
-   SYNC VIEW
--------------------------------------------------------------- */
-async function renderSyncView() {
-  const all = (await IDB.all('photos')).sort((a,b) => b.capturedAt - a.capturedAt);
-  const pending = all.filter(p => p.status !== 'synced');
-  const done = all.filter(p => p.status === 'synced').slice(0, 20);
-  $('#queue-count').textContent = `${pending.length} pending`;
-
-  const renderItem = (p) => {
-    const item = document.createElement('div');
-    item.className = 'sync-item';
-    const statusClass = p.status === 'pending' ? 'pending' : p.status === 'uploading' ? 'uploading' : p.status === 'error' ? 'err' : 'done';
-    const statusLabel = p.status === 'synced' ? 'Synced' : p.status === 'uploading' ? 'Uploading' : p.status === 'error' ? 'Error' : 'Pending';
-    item.innerHTML = `
-      <div class="si-thumb"></div>
-      <div class="si-body">
-        <div class="si-title">${escapeHtml(p.trialName)} · ${escapeHtml(p.timing || '')} Rep ${p.rep}</div>
-        <div class="si-meta">${new Date(p.capturedAt).toLocaleString()} · ${escapeHtml(p.filename)}</div>
-      </div>
-      <div class="si-status ${statusClass}">${statusLabel}</div>`;
-    const thumb = item.querySelector('.si-thumb');
-    if (p.blob) {
-      const img = document.createElement('img');
-      img.src = URL.createObjectURL(p.blob);
-      img.onload = () => URL.revokeObjectURL(img.src);
-      thumb.appendChild(img);
-    }
-    return item;
-  };
-
-  const sl = $('#sync-list'); sl.innerHTML = '';
-  if (pending.length === 0) {
-    sl.innerHTML = `<div class="empty" style="padding:18px"><p style="margin:0">Nothing waiting. 🌾</p></div>`;
-  } else {
-    pending.slice(0, 50).forEach(p => sl.appendChild(renderItem(p)));
-  }
-  const dl = $('#done-list'); dl.innerHTML = '';
-  done.forEach(p => dl.appendChild(renderItem(p)));
-  renderStatusStrip();
-}
-
-/* --------------------------------------------------------------
-   SETTINGS
--------------------------------------------------------------- */
-async function renderSettings() {
-  $('#set-account').textContent = STATE.user ? (STATE.user.email || STATE.user.name) : 'Not connected';
-  $('#set-token-exp').textContent = STATE.tokenExp ? new Date(STATE.tokenExp).toLocaleTimeString() : '—';
-
-  const wifiOnly = await IDB.setting('wifiOnly');
-  $('#set-wifi-only').checked = wifiOnly !== undefined ? !!wifiOnly : DEFAULT_SETTINGS.wifiOnly;
-  const autoSync = await IDB.setting('autoSync');
-  $('#set-autosync').checked = autoSync !== undefined ? !!autoSync : DEFAULT_SETTINGS.autoSync;
-
-  try {
-    if (navigator.storage && navigator.storage.estimate) {
-      const est = await navigator.storage.estimate();
-      const mb = (est.usage / 1024 / 1024);
-      $('#set-storage').textContent = mb < 1 ? (est.usage/1024).toFixed(0) + ' KB' : mb.toFixed(1) + ' MB';
-    } else { $('#set-storage').textContent = '—'; }
-    if (navigator.storage && navigator.storage.persisted) {
-      const p = await navigator.storage.persisted();
-      $('#set-persist').textContent = p ? 'Granted' : 'Not persistent';
-    }
-  } catch {}
-  $('#set-build').textContent = CONFIG.BUILD;
-}
-
-$('#set-wifi-only').addEventListener('change', async (e) => {
-  await IDB.setting('wifiOnly', e.target.checked);
-  toast('Saved. Wi-Fi only ' + (e.target.checked ? 'on' : 'off'));
-  onMaybeSync();
-});
-$('#set-autosync').addEventListener('change', async (e) => {
-  await IDB.setting('autoSync', e.target.checked);
-});
-$('#btn-refresh-token').addEventListener('click', async () => {
-  try { await requestToken({ silent: true }); renderSettings(); toast('Token refreshed','success'); }
-  catch { try { await requestToken({ silent: false }); renderSettings(); toast('Reconnected','success'); } catch (e) { toast('Failed: ' + e.message, 'error'); } }
-});
-$('#btn-signout').addEventListener('click', signOut);
-
-/* --------------------------------------------------------------
-   EVENT WIRING
--------------------------------------------------------------- */
-$('#btn-connect').addEventListener('click', async () => {
-  const btn = $('#btn-connect');
-  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Connecting…';
-  try {
-    await requestToken({ silent: false });
-    await fetchUserInfo();
-    await ensureRootFolders();
-    showView('dashboard');
-    toast('Drive connected', 'success');
-    onMaybeSync();
-  } catch (e) {
-    toast('Couldn\u2019t connect: ' + (e.message || e), 'error');
-    btn.disabled = false;
-    btn.innerHTML = 'Connect Google Drive';
-  }
-});
-
-$('#btn-refresh').addEventListener('click', async () => { await onMaybeSync(); renderDashboard(); toast('Refreshed'); });
-$('#btn-force-sync').addEventListener('click', () => runSyncOnce());
-$('#btn-new-trial').addEventListener('click', promptNewTrial);
-$('#btn-fab-capture').addEventListener('click', async () => {
-  const trials = (await IDB.all('trials')).filter(t => !t.archived);
-  if (trials.length === 0) { promptNewTrial(); return; }
-  if (trials.length === 1) { openTrialActions(trials[0]); return; }
-  // pick a trial
-  overlay(`
-    <h2>Quick capture</h2>
-    <p>Pick a trial to continue.</p>
-    <div class="trial-list" id="qc-list"></div>
-    <div style="margin-top:10px"><button class="btn btn-secondary btn-full" id="qc-cancel">Cancel</button></div>
-  `);
-  const list = $('#qc-list');
-  const photos = await IDB.all('photos');
-  for (const t of trials) {
-    const c = photos.filter(p => p.trialId === t.id).length;
-    const card = renderTrialCard(t, c);
-    card.onclick = () => { overlayClose(); openTrialActions(t); };
-    list.appendChild(card);
-  }
-  $('#qc-cancel').onclick = overlayClose;
-});
-
-$('#btn-shutter').addEventListener('click', onShutter);
-$('#cap-back').addEventListener('click', () => { stopCamera(); showView('dashboard'); });
-$('#cap-flip').addEventListener('click', () => { STATE.cameraFacing = STATE.cameraFacing === 'environment' ? 'user' : 'environment'; startCamera(); });
-$('#btn-end-session').addEventListener('click', () => {
-  const n = STATE.session.length;
-  stopCamera();
-  showView('dashboard');
-  toast(n ? `Rep finished — ${n} photo${n===1?'':'s'} saved` : 'Rep ended', 'success');
-  onMaybeSync();
-});
-
-// Dashboard stat tap shortcuts
-$$('#stat-grid .stat').forEach(s => s.addEventListener('click', () => {
-  const which = s.dataset.stat;
-  if (which === 'pending' || which === 'today') showView('sync');
-  else if (which === 'trials') showView('trials');
-  else if (which === 'drive') showView('settings');
-}));
-
-/* --------------------------------------------------------------
-   BOOT
--------------------------------------------------------------- */
-async function boot() {
-  await openDB();
-  await repairStuckUploads();
-  // Request persistent storage so iOS/Safari doesn't evict our queue
-  if (navigator.storage && navigator.storage.persist) {
-    try { await navigator.storage.persist(); } catch {}
-  }
-  detectNetwork();
-
-  // Restore cached user & token (best-effort silent sign-in)
-  const savedUser = await IDB.setting('user');
-  if (savedUser) STATE.user = savedUser;
-  const savedTok = await IDB.setting('token');
-  if (savedTok && savedTok.exp && savedTok.exp > Date.now() + 60000) {
-    STATE.token = savedTok.token;
-    STATE.tokenExp = savedTok.exp;
-  }
-
-  await initTokenClient();
-
-  // If we have a saved user, try silent refresh; keep them in the dashboard
-  if (STATE.user) {
-    showView('dashboard');
-    if (!STATE.token || STATE.tokenExp < Date.now() + 60000) {
-      try { await requestToken({ silent: true }); } catch { /* leave them signed in offline; auth will prompt on next Drive op */ }
-    }
-    try { await ensureRootFolders(); } catch {}
-    onMaybeSync();
-    renderDashboard();
-  } else {
-    showView('auth');
-  }
-
-  // Periodic status refresh
-  setInterval(() => renderStatusStrip(), 30 * 1000);
-  // Periodic sync attempt (covers cases where connection change event doesn't fire)
-  setInterval(() => onMaybeSync(), 2 * 60 * 1000);
-
-  // Warn on unload if captures are held locally and user is offline
-  window.addEventListener('beforeunload', (e) => {
-    if (!STATE.online) return; // only warn when user might actually sync
-  });
-}
-
-boot().catch(e => {
-  console.error(e);
-  document.body.innerHTML = '<pre style="padding:20px;font-family:ui-monospace">FieldTrack failed to start:\n\n' + e.stack + '</pre>';
-});
-
+  return { trigger, endSession };
 })();
+
+// Expose trigger so inline onclick in render can call it
+function triggerCamera(t, s, plot) { Capture.trigger(t, s, plot); }
+
+/* ---------- Dashboard sync-status pill ---------- */
+Sync.onStatus(status => {
+  const dot = $('#syncStatus .sync-dot');
+  const txt = $('#syncStatusText');
+  if (!dot || !txt) return;
+  if (status === 'running') { dot.classList.add('live'); txt.textContent = 'Syncing'; }
+  else { dot.classList.remove('live'); txt.textContent = navigator.onLine ? 'Up to date' : 'Offline'; }
+});
+
+/* ---------- Boot ---------- */
+async function boot() {
+  // Load settings
+  window._settings = (await IDB.get('settings', 'prefs')) || { wifiOnly: false };
+
+  // Register service worker (for background sync on Android)
+  if ('serviceWorker' in navigator) {
+    try {
+      await navigator.serviceWorker.register('./sw.js');
+      navigator.serviceWorker.addEventListener('message', ev => {
+        if (ev.data?.type === 'BG_SYNC_FIRE') Sync.runNow();
+      });
+    } catch (e) { console.warn('SW registration failed', e); }
+  }
+
+  // Request persistent storage — critical on iOS to survive 7-day eviction
+  if (navigator.storage?.persist) {
+    try { await navigator.storage.persist(); } catch (_) {}
+  }
+
+  await Drive.restoreCache();
+  await PhotoStore.repairStuck();
+  await PhotoStore.pruneOldBlobs();
+
+  await Auth.init();
+
+  Auth.onChange(async tok => {
+    if (tok) {
+      // Signed in: load manifest, start sync loop, go to dashboard
+      await Manifest.load();
+      Manifest.onChange(() => {
+        if ($('#v_dashboard').classList.contains('active')) UI.renderDashboard();
+        if ($('#v_trials').classList.contains('active')) UI.renderTrials();
+        if ($('#v_trial').classList.contains('active')) UI.renderTrialDetail();
+      });
+      Sync.start();
+      Sync.runNow();
+      UI.go('dashboard');
+    } else {
+      UI.go('auth');
+    }
+  });
+
+  // If we booted already signed in, kick off above flow manually
+  if (Auth.isSignedIn) {
+    await Manifest.load();
+    Manifest.onChange(() => {
+      if ($('#v_dashboard').classList.contains('active')) UI.renderDashboard();
+      if ($('#v_trials').classList.contains('active')) UI.renderTrials();
+      if ($('#v_trial').classList.contains('active')) UI.renderTrialDetail();
+    });
+    Sync.start();
+    Sync.runNow();
+    UI.go('dashboard');
+  }
+}
+boot();
 
 </script>
 
